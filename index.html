@@ -169,6 +169,29 @@ function menu(){state='menu';modal(`<div class="eyebrow">EMERGENCY BROADCAST // 
 function itemArt(type,color='#a8e56b'){
 let shape='',details='';
 const isGun=['pistol','smg','shotgun','rifle','dmr'].includes(type);
+if(isGun){
+let pixels='';
+const rect=(x,y,w,h,c)=>'<rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" fill="'+c+'"/>';
+const block=(x,y,w,h,c)=>{pixels+=rect(x,y,w,h,c)};
+const outline=(x,y,w,h)=>block(x,y,w,h,'#101511');
+if(type==='pistol'){
+// Tiny conventional handgun: short slide and a steep grip, never a box-shaped submachine gun.
+outline(29,25,39,12);block(31,23,32,3,'#252c28');block(33,25,27,5,'#9ba58e');block(31,30,35,4,'#596754');block(61,27,8,5,'#343c34');block(69,28,5,3,'#171c18');block(36,28,12,2,'#c1c7a6');block(44,33,8,3,'#39443a');outline(43,36,12,4);block(45,37,8,2,'#c3b88a');outline(45,39,10,15);block(47,41,6,10,'#574d38');block(46,51,7,3,'#282d25');outline(40,36,5,6);block(42,38,2,3,'#9ba58e');block(34,23,3,2,'#c7c9aa');block(59,22,3,3,'#b4b99e');
+}else if(type==='smg'){
+// Compact SMG: very short stock/barrel, squared receiver and a long straight stick magazine.
+outline(9,27,13,9);block(6,28,5,5,'#5b6654');block(11,25,9,3,'#8a9877');outline(20,25,34,14);block(22,27,28,9,'#475744');block(24,26,21,3,'#a1aa8a');block(25,31,18,2,'#c0c4a1');outline(54,28,15,8);block(56,29,11,3,'#78866b');outline(68,30,12,4);block(80,31,5,2,'#b4b89a');block(29,22,4,4,'#222a22');block(31,20,2,3,'#c2c6a5');outline(34,39,10,15);block(36,41,6,10,'#69775b');block(36,44,6,2,'#3a4837');block(36,48,6,2,'#3a4837');outline(44,37,7,5);block(46,39,3,2,'#b0b99a');block(14,29,4,2,'#c5c8a5');block(22,35,28,2,'#252d25');
+}else if(type==='shotgun'){
+// Pump shotgun: long narrow barrel, wooden shoulder stock, distinct pump below barrel.
+outline(5,27,18,11);block(7,29,13,7,'#795333');block(8,30,10,2,'#b58a53');block(10,34,8,2,'#51371f');outline(22,28,17,10);block(24,29,13,3,'#8b9580');block(24,33,13,3,'#485543');outline(38,29,43,5);block(40,30,38,2,'#b4bea0');block(78,30,7,3,'#272e26');block(84,31,4,2,'#111611');outline(27,38,7,7);block(29,39,3,4,'#9ca486');outline(39,36,22,8);block(41,37,18,4,'#63734f');for(let x=42;x<=56;x+=4)block(x,36,2,8,'#303c2b');block(41,39,18,2,'#a0ad80');outline(25,37,5,5);block(27,39,2,2,'#c3c7a4');block(44,26,3,3,'#c2c6a3');block(74,27,3,3,'#aab595');
+}else if(type==='rifle'){
+// Assault rifle: recognizable shoulder stock, long handguard and angled curved magazine.
+outline(4,27,18,12);block(7,29,12,7,'#79583a');block(8,30,9,2,'#b58c59');outline(21,27,15,12);block(23,29,11,3,'#a3ad8b');block(23,34,11,3,'#58684e');outline(35,28,20,11);block(37,29,16,3,'#a6b092');block(37,34,16,3,'#657458');outline(54,29,24,7);block(56,30,20,3,'#859477');for(let x=58;x<=72;x+=5)block(x,33,2,2,'#394832');outline(77,30,8,4);block(83,31,5,2,'#171c17');outline(37,39,9,7);block(39,40,5,4,'#a1aa86');outline(43,44,8,9);block(45,46,4,5,'#515f44');outline(29,39,7,6);block(31,40,3,3,'#c1c5a0');block(24,24,4,3,'#30392b');block(26,22,2,3,'#a9b291');block(49,25,3,3,'#30392b');block(50,23,2,3,'#b5bea0');
+}else if(type==='dmr'){
+// DMR: long precision barrel, large scope mounted above the receiver and a compact magazine.
+outline(4,28,18,11);block(7,30,12,6,'#795638');block(8,31,9,2,'#b58c59');outline(22,28,18,11);block(24,30,14,3,'#a6b08d');block(24,35,13,2,'#59684e');outline(39,30,41,4);block(41,31,36,2,'#aab596');outline(79,30,7,4);block(85,31,4,2,'#151a15');outline(27,20,32,8);block(30,22,26,4,'#596b68');block(32,23,22,2,'#c3d0b4');block(28,19,4,3,'#a9b294');block(54,19,4,3,'#a9b294');outline(34,39,8,7);block(36,40,4,4,'#9ca887');outline(41,43,8,9);block(43,45,4,5,'#536044');block(46,28,7,2,'#252d24');block(47,26,4,2,'#b4bea0');block(62,27,3,3,'#aab494');
+}
+return '<div class="itemart weapon-art pixel-art"><svg viewBox="0 0 96 64" role="img" aria-label="'+type+' pixel art" shape-rendering="crispEdges"><rect width="96" height="64" fill="#17211d"/><rect x="5" y="8" width="86" height="48" fill="#202d25"/><path d="M5 8h86v2H5zM5 54h86v2H5z" fill="#354637"/>'+pixels+'<rect x="8" y="58" width="80" height="2" fill="#3b4b35"/></svg></div>';
+}
 if(type==='pistol'){
 // Compact conventional handgun: short slide, sharply angled grip, open trigger guard; intentionally much shorter than every long gun.
 shape='<path d="M17 31h34l4 3v7H18z" fill="#505752"/><path d="M19 27h29l4 4H19z" fill="#8c938b"/><path d="M22 28h23v1.5H22z" fill="#c0c5ba"/><path d="M49 31h6v7h-6z" fill="#252b28"/><path d="M53 33h6v3h-6z" fill="#111614"/><path d="M24 40h17l-2 5-6 17-9-2-3-5 6-13z" fill="#292e2b"/><path d="M25 45l10 1-5 13-5-1-2-4z" fill="#4e493e"/><path d="M31 42q7 1 7 6q0 4-5 5" fill="none" stroke="#111512" stroke-width="2"/><path d="M20 26l-1-4h4l2 4M44 27v-4h4v4" fill="#4e554f"/><rect x="30" y="31" width="10" height="3" rx="1" fill="#252b28"/><circle cx="22" cy="35" r="1" fill="#c1b080"/>';
