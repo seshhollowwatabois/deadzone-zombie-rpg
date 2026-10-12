@@ -26,18 +26,20 @@ for(let b of shots){b.x+=b.vx*dt;b.y+=b.vy*dt;b.life-=dt;if(!b.enemy){for(let z 
 function cam(){return{x:clamp(player.x, W/2,world.w-W/2),y:clamp(player.y,H/2,world.h-H/2)}}
 function drawWorld(){ctx.fillStyle='#293832';ctx.fillRect(0,0,world.w,world.h);ctx.fillStyle='#33413a';for(let x=0;x<world.w;x+=64)for(let y=0;y<world.h;y+=64){ctx.fillStyle=((x/64+y/64)%2)?'#2c3b34':'#304037';ctx.fillRect(x,y,62,62);ctx.strokeStyle='#455247';ctx.lineWidth=1;ctx.strokeRect(x+2,y+2,60,60);if((x+y)%5===0){ctx.fillStyle='#6a765a';ctx.fillRect(x+rand(8,45),y+rand(8,45),2,2)}}ctx.fillStyle='#222d2c';ctx.fillRect(0,world.h*.43,world.w,world.h*.14);ctx.fillStyle='#59645a';for(let x=0;x<world.w;x+=100)ctx.fillRect(x,world.h*.5,48,3);for(let o of obstacles){ctx.save();ctx.translate(o.x,o.y);ctx.rotate(o.rot);ctx.fillStyle='#17211e';ctx.fillRect(-o.w/2+5,-o.h/2+8,o.w,o.h);ctx.fillStyle=o.type==='car'?'#53605b':o.type==='rubble'?'#65665b':'#877454';ctx.fillRect(-o.w/2,-o.h/2,o.w,o.h);ctx.strokeStyle='#99a094';ctx.strokeRect(-o.w/2,-o.h/2,o.w,o.h);if(o.type==='car'){ctx.fillStyle='#253f42';ctx.fillRect(-o.w*.28,-o.h*.3,o.w*.56,o.h*.6);ctx.fillStyle='#222';ctx.fillRect(-o.w*.4,-o.h/2,o.w*.18,7);ctx.fillRect(o.w*.22,-o.h/2,o.w*.18,7)}else if(o.type==='rubble'){ctx.strokeStyle='#343b34';for(let i=0;i<5;i++){ctx.beginPath();ctx.moveTo(rand(-o.w/2,o.w/2),rand(-o.h/2,o.h/2));ctx.lineTo(rand(-o.w/2,o.w/2),rand(-o.h/2,o.h/2));ctx.stroke()}}ctx.restore()}ctx.strokeStyle='#66745f';ctx.lineWidth=8;ctx.strokeRect(0,0,world.w,world.h)}
 function drawPlayer(){
-ctx.save();ctx.translate(player.x,player.y);
+ctx.save();ctx.translate(player.x,player.y);ctx.rotate(player.angle);
 ctx.fillStyle='#0009';ctx.beginPath();ctx.ellipse(-2,4,17,13,0,0,Math.PI*2);ctx.fill();
-ctx.rotate(player.angle);
 const skin=player.inv>0?'#f4e4d0':'#c99b76';
-/* Overhead survivor view: head, shoulders, hands and weapon only; no torso or legs. */
-ctx.fillStyle='#171d18';ctx.beginPath();ctx.ellipse(-5,0,9,8,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle='#3b2b22';ctx.beginPath();ctx.ellipse(-6,-.5,7.5,7,0,0,Math.PI*2);ctx.fill();
-ctx.fillStyle=skin;ctx.beginPath();ctx.ellipse(-2.5,0,5.5,5.7,0,0,Math.PI*2);ctx.fill();
-/* Compact shoulder pads frame the head. */
+/* Rear/top of head only: hair and cap shape, no visible eyes or forward-facing facial features. */
+ctx.fillStyle='#171d18';ctx.beginPath();ctx.ellipse(-7,0,9,8.5,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#3b2b22';ctx.beginPath();ctx.ellipse(-8,-.5,7.8,7.2,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#20251f';ctx.beginPath();ctx.ellipse(-9,0,7.2,6.8,0,0,Math.PI*2);ctx.fill();
+ctx.fillStyle='#4a382b';ctx.beginPath();ctx.ellipse(-7,-.5,5.4,5.6,0,0,Math.PI*2);ctx.fill();
+/* Small neck/collar joins the head to the shoulder line. */
+ctx.fillStyle=skin;ctx.beginPath();ctx.roundRect(-2.5,-3,5,6,1.5);ctx.fill();
+/* Compact tactical shoulders, viewed from above. */
 ctx.fillStyle='#29372e';ctx.beginPath();ctx.ellipse(0,-9,7,5.5,-.22,0,Math.PI*2);ctx.ellipse(0,9,7,5.5,.22,0,Math.PI*2);ctx.fill();
 ctx.fillStyle=player.inv>0?'#d8d7c8':'#526b59';ctx.beginPath();ctx.ellipse(1,-9,4.5,3.5,-.22,0,Math.PI*2);ctx.ellipse(1,9,4.5,3.5,.22,0,Math.PI*2);ctx.fill();
-/* Forearms and hands visibly grip the forward-pointing rifle. */
+/* Arms and hands grip the forward-pointing rifle. */
 ctx.strokeStyle='#26312a';ctx.lineWidth=4.5;ctx.lineCap='round';ctx.beginPath();ctx.moveTo(1,-8);ctx.lineTo(9,-5);ctx.lineTo(14,-2);ctx.moveTo(1,8);ctx.lineTo(9,5);ctx.lineTo(14,2);ctx.stroke();
 ctx.strokeStyle=skin;ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(8,-5);ctx.lineTo(14,-2);ctx.moveTo(8,5);ctx.lineTo(14,2);ctx.stroke();
 ctx.fillStyle='#101512';ctx.beginPath();ctx.roundRect(7,-2.5,27,5,1);ctx.fill();
