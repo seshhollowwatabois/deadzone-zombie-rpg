@@ -31,7 +31,7 @@ cash=s.cash??180;wave=s.wave||0;level=s.level||1;xp=s.xp||0;xpNext=s.xpNext||100
 owned=new Set(s.owned||['pistol']);owned.add('pistol');armorId=armors.some(a=>a.id===s.armorId)?s.armorId:null;ranks={};
 ammoByGun=s.ammoByGun&&typeof s.ammoByGun==='object'?s.ammoByGun:{};
 reserveByGun=s.reserveByGun&&typeof s.reserveByGun==='object'?s.reserveByGun:{};
-for(const g of guns){if(!Number.isFinite(ammoByGun[g.id]))ammoByGun[g.id]=g.mag;if(!Number.isFinite(reserveByGun[g.id]))reserveByGun[g.id]=isShotgun(g)?shotgunReserve(g):g.mag*2;}
+for(const g of guns){if(!Number.isFinite(ammoByGun[g.id]))ammoByGun[g.id]=g.mag;if(!Number.isFinite(reserveByGun[g.id]))reserveByGun[g.id]=isShotgun(g)?shotgunReserve(g):g.mag*2;if(isShotgun(g))reserveByGun[g.id]=Math.max(reserveByGun[g.id],shotgunReserve(g));}
 if(ammoByGun.pistol===12)ammoByGun.pistol=16;
 const legacyGun=s.gunId||'pistol';
 primaryGunId=s.primaryGunId&&s.primaryGunId!=='pistol'&&owned.has(s.primaryGunId)?s.primaryGunId:(legacyGun!=='pistol'&&owned.has(legacyGun)?legacyGun:null);
@@ -41,7 +41,7 @@ gunId=activeSlot==='primary'?primaryGunId:secondaryGunId;
 return true
 }catch(e){return false}}
 function isShotgun(g){return !!g&&(g.id==='shotgun'||g.id==='spas12')}function shotgunReserve(g){return g&&g.id==='spas12'?18:12}
-function newPlayer(){return{x:world.w/2,y:world.h/2,r:16,hp:100,maxHp:100,speed:220,angle:0,walk:0,flash:0,inv:0,ammo:ammoByGun[gunId]??getGun().mag}}function refillRunAmmo(){for(const id of owned){const g=guns.find(x=>x.id===id);if(!g)continue;ammoByGun[id]=g.mag;reserveByGun[id]=isShotgun(g)?6:g.mag*2}if(player)player.ammo=ammoByGun[gunId]??getGun().mag}function initWorld(){obstacles=[];for(let i=0;i<45;i++){let x=rand(80,world.w-80),y=rand(80,world.h-80);if(Math.hypot(x-world.w/2,y-world.h/2)<180)continue;let t=Math.random();obstacles.push({x,y,w:t<.25?rand(80,140):rand(40,75),h:t<.25?rand(32,50):rand(42,85),type:t<.25?'car':t<.6?'rubble':'barrier',rot:rand(-.12,.12)})}}
+function newPlayer(){return{x:world.w/2,y:world.h/2,r:16,hp:100,maxHp:100,speed:220,angle:0,walk:0,flash:0,inv:0,ammo:ammoByGun[gunId]??getGun().mag}}function refillRunAmmo(){for(const id of owned){const g=guns.find(x=>x.id===id);if(!g)continue;ammoByGun[id]=g.mag;reserveByGun[id]=isShotgun(g)?shotgunReserve(g):g.mag*2}if(player)player.ammo=ammoByGun[gunId]??getGun().mag}function initWorld(){obstacles=[];for(let i=0;i<45;i++){let x=rand(80,world.w-80),y=rand(80,world.h-80);if(Math.hypot(x-world.w/2,y-world.h/2)<180)continue;let t=Math.random();obstacles.push({x,y,w:t<.25?rand(80,140):rand(40,75),h:t<.25?rand(32,50):rand(42,85),type:t<.25?'car':t<.6?'rubble':'barrier',rot:rand(-.12,.12)})}}
 function startFresh(){cash=180;wave=0;level=1;xp=0;xpNext=100;kills=0;turretOwned=false;turretEquipped=false;turret=null;turretFireT=0;gunId='pistol';primaryGunId=null;secondaryGunId='pistol';activeSlot='secondary';ammoByGun={pistol:16,python:6};reserveByGun={pistol:32,python:12};owned=new Set(['pistol']);armorId=null;ranks={};player=newPlayer();player.maxHp=maxHp();refillRunAmmo();zs=[];shots=[];particles=[];texts=[];drops=[];initWorld();startWave();save()}
 function startWave(){wave++;spawned=0;total=5+wave*3;spawnT=.5;breakT=0;zs=[];spawnAmmoBox();announce('WAVE '+wave,'THEY’RE COMING');$('#wave').textContent=wave;save()}
 function announce(a,b){let n=$('#announce');n.innerHTML=a+'<small>'+b+'</small>';n.classList.add('show');annT=2.1}function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');toastT=2}
