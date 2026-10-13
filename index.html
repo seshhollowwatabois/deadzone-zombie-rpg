@@ -201,6 +201,7 @@ return '<div class="weapon-stats">'+
 }
 function itemArt(type,color='#a8e56b'){
 let shape='',details='';
+const isGun=['pistol','smg','shotgun','rifle','dmr'].includes(type);
 // The screenshot-based weapon sprite was not included in the repository. Render the built-in weapon SVGs below instead so weapons remain visible in the shop and loadout.
 if(type==='pistol'){
 // Compact conventional handgun: short slide, sharply angled grip, open trigger guard; intentionally much shorter than every long gun.
