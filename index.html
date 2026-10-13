@@ -303,7 +303,7 @@ return '<div class="itemart '+(isGun?'weapon-art':'gear-art')+'"><svg viewBox="0
 }
 function shopOpen(dead=false){fromShop=state==='menu'?'menu':'play';state='shop';tab='loadout';renderShop(dead)}
 function renderShop(dead=false){
-let tabs=[['loadout','LOADOUT'],['primary','PRIMARY'],['secondary','SECONDARY'],['armor','GEAR']],html='';
+let tabs=[['loadout','LOADOUT'],['primary','PRIMARY'],['secondary','SECONDARY'],['armor','VESTS'],['gear','GEAR']],html='';
 if(tab==='loadout'){
  const pg=primaryGunId?guns.find(g=>g.id===primaryGunId):null,sg=secondaryGunId?guns.find(g=>g.id===secondaryGunId):null,a=armor();
  const primaryCard=pg
@@ -322,7 +322,8 @@ if(tab==='secondary'){
  const list=guns.filter(g=>weaponSlot(g)==='secondary');
  html='<div class="eyebrow" style="grid-column:1/-1">SECONDARY WEAPONS · PRESS 2 TO USE YOUR EQUIPPED SECONDARY</div>'+list.map(g=>{let own=owned.has(g.id),eq=secondaryGunId===g.id;return '<div class="item weapon-item">'+itemArt(g.id,g.color)+'<h3>'+g.name+(eq?' ✓':'')+'</h3>'+weaponStats(g)+'<div class="price">'+(own?'Owned':'$'+g.cost)+'</div>'+(!own?'<button data-buy="'+g.id+'" '+(cash<g.cost||level<g.lv?'disabled':'')+'>BUY SECONDARY</button>':'<button data-equip="'+g.id+'" '+(eq?'disabled':'')+'>'+(eq?'EQUIPPED IN SECONDARY':'EQUIP SECONDARY')+'</button>')+'</div>'}).join('');
 }
-if(tab==='armor')html=armors.map(a=>'<div class="item">'+itemArt(a.id,'#8aa5a0')+'<h3>'+a.name+(armorId===a.id?' ✓':'')+'</h3><p>'+a.desc+'</p><div class="price">'+(armorId===a.id?'Equipped':'$'+a.cost)+'</div><button data-armor="'+a.id+'" '+(armorId===a.id||cash<a.cost?'disabled':'')+'>'+(armorId===a.id?'EQUIPPED':'BUY & EQUIP')+'</button></div>').join('');
+if(tab==='gear')html='<div class="item" style="grid-column:1/-1;text-align:center;padding:32px 20px"><div class="eyebrow">GEAR STORAGE</div><h3>No gear available</h3><p>Gear items will appear here when added to the game.</p></div>';
+ if(tab==='armor')html=armors.map(a=>'<div class="item">'+itemArt(a.id,'#8aa5a0')+'<h3>'+a.name+(armorId===a.id?' ✓':'')+'</h3><p>'+a.desc+'</p><div class="price">'+(armorId===a.id?'Equipped':'$'+a.cost)+'</div><button data-armor="'+a.id+'" '+(armorId===a.id||cash<a.cost?'disabled':'')+'>'+(armorId===a.id?'EQUIPPED':'BUY & EQUIP')+'</button></div>').join('');
 
 modal('<div class="eyebrow">FIELD QUARTERMASTER</div><h1>LOADOUT / ARMORY</h1><p>Equip one primary and one secondary at the same time. Switch with <b style="color:#a8e56b">1</b> and <b style="color:#a8e56b">2</b>. Purchases persist between runs. <b style="color:#ffd078">$'+cash+'</b> available · Level '+level+'</p><div class="tabs">'+tabs.map(t=>'<button data-tab="'+t[0]+'" class="'+(tab===t[0]?'active':'')+'">'+t[1]+'</button>').join('')+'</div>'+(tab==='loadout'?html:'<div class="grid">'+html+'</div>')+'<div class="actions"><button class="primary" id="back">'+(dead?'BACK TO RESULTS':'RETURN TO FIELD')+'</button><button id="saveclose">SAVE & CLOSE</button></div>');
 document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.tab;renderShop(dead)});
