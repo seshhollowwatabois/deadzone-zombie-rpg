@@ -192,7 +192,7 @@ pierce:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12h18m-5.5-5.5
 };
 const currentDamage=Math.round(g.d*(1+(ranks.trigger||0)*.1)*(1+(u||0)*.12));
 const isShotgun=g.id==='shotgun';
-const damageLabel=isShotgun?'DAMAGE / PELLET × 8':'DAMAGE';
+const damageLabel=isShotgun?'DMG / PELLET':'DAMAGE';
 const damageValue=currentDamage+(isShotgun?'×'+g.pellets:'');
 return '<div class="weapon-stats">'+
 '<div class="weapon-stat"><span class="stat-icon">'+icons.damage+'</span><span class="stat-copy"><small>'+damageLabel+'</small><b>'+damageValue+'</b></span></div>'+
