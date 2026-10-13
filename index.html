@@ -202,17 +202,6 @@ return '<div class="weapon-stats">'+
 function itemArt(type,color='#a8e56b'){
 let shape='',details='';
 const isGun=['pistol','smg','shotgun','rifle','dmr'].includes(type);
-if(isGun){
-const crops={
-pistol:[45,112,94,71],
-smg:[354,109,132,78],
-shotgun:[18,299,141,59],
-rifle:[352,298,143,70],
-dmr:[20,484,289,78]
-};
-const [x,y,w,h]=crops[type];
-return '<div class="itemart weapon-art reference-sprite"><svg viewBox="'+x+' '+y+' '+w+' '+h+'" role="img" aria-label="'+type+' weapon reference artwork"><image href="Screenshot%202026-10-13%204.49.24%20PM.png" x="0" y="0" width="668" height="620" preserveAspectRatio="none"/></svg></div>';
-}
 if(type==='pistol'){
 // Compact conventional handgun: short slide, sharply angled grip, open trigger guard; intentionally much shorter than every long gun.
 shape='<path d="M17 31h34l4 3v7H18z" fill="#505752"/><path d="M19 27h29l4 4H19z" fill="#8c938b"/><path d="M22 28h23v1.5H22z" fill="#c0c5ba"/><path d="M49 31h6v7h-6z" fill="#252b28"/><path d="M53 33h6v3h-6z" fill="#111614"/><path d="M24 40h17l-2 5-6 17-9-2-3-5 6-13z" fill="#292e2b"/><path d="M25 45l10 1-5 13-5-1-2-4z" fill="#4e493e"/><path d="M31 42q7 1 7 6q0 4-5 5" fill="none" stroke="#111512" stroke-width="2"/><path d="M20 26l-1-4h4l2 4M44 27v-4h4v4" fill="#4e554f"/><rect x="30" y="31" width="10" height="3" rx="1" fill="#252b28"/><circle cx="22" cy="35" r="1" fill="#c1b080"/>';
