@@ -191,9 +191,11 @@ rate:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M13.5 2.5L5.8 13h5.4l
 pierce:'<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12h18m-5.5-5.5L20.5 12 15 17.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><circle cx="8" cy="12" r="3.3" fill="#0a1d2b" stroke="currentColor" stroke-width="1.5"/></svg>'
 };
 const currentDamage=Math.round(g.d*(1+(ranks.trigger||0)*.1)*(1+(u||0)*.12));
-const damageLabel=g.id==='shotgun'?'DMG / PELLET':'DAMAGE';
+const isShotgun=g.id==='shotgun';
+const damageLabel=isShotgun?'DAMAGE / PELLET × 8':'DAMAGE';
+const damageValue=currentDamage+(isShotgun?'×'+g.pellets:'');
 return '<div class="weapon-stats">'+
-'<div class="weapon-stat"><span class="stat-icon">'+icons.damage+'</span><span class="stat-copy"><small>'+damageLabel+'</small><b>'+currentDamage+'</b></span></div>'+
+'<div class="weapon-stat"><span class="stat-icon">'+icons.damage+'</span><span class="stat-copy"><small>'+damageLabel+'</small><b>'+damageValue+'</b></span></div>'+
 '<div class="weapon-stat"><span class="stat-icon">'+icons.mag+'</span><span class="stat-copy"><small>MAG</small><b>'+g.mag+'</b></span></div>'+
 '<div class="weapon-stat"><span class="stat-icon">'+icons.rate+'</span><span class="stat-copy"><small>FIRE RATE</small><b>'+(1/g.rate).toFixed(1)+'/s</b></span></div>'+
 '<div class="weapon-stat"><span class="stat-icon">'+icons.pierce+'</span><span class="stat-copy"><small>PIERCE</small><b>'+(g.pierce||0)+'</b></span></div>'+
