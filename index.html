@@ -241,9 +241,9 @@ return '<div class="weapon-stats">'+
 }
 function itemArt(type,color='#a8e56b'){
 let shape='',details='';
-const isGun=['pistol','python','smg','shotgun','rifle','hk21','m249','dmr'].includes(type);
+const isGun=['pistol','python','smg','shotgun','spas12','rifle','hk21','m249','dmr'].includes(type);
 
-if(isGun){
+if(isGun&&type!=='spas12'){
 const crops={
 pistol:[49,117,84,63],
 python:[49,117,84,63],
