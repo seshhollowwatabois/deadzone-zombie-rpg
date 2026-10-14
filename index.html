@@ -411,8 +411,8 @@ if(tab==='loadout'){
  html='<div class="equippedbox"><div class="eyebrow">TWO-WEAPON LOADOUT · PRESS 1 OR 2 DURING COMBAT</div><div class="grid">'+primaryCard+secondaryCard+'</div><div class="eyebrow" style="margin-top:16px">EQUIPPED VEST</div><div class="itemtop" style="margin-top:8px">'+itemArt(a?a.id:'vest',a?'#a8e56b':'#64746a')+'<div><h3>'+(a?a.name:'No armor equipped')+'</h3><p>'+(a?a.desc:'Choose a vest in the VESTS tab.')+'</p></div></div></div>';
 }
 if(tab==='primary'){
- const list=guns.filter(g=>weaponSlot(g)==='primary');
- html='<div class="eyebrow" style="grid-column:1/-1">PRIMARY WEAPONS · PRESS 1 TO USE YOUR EQUIPPED PRIMARY</div>'+list.map(g=>{let own=owned.has(g.id),eq=primaryGunId===g.id;return '<div class="item weapon-item">'+itemArt(g.id,g.color)+'<h3>'+g.name+(eq?' ✓':'')+'</h3>'+weaponStats(g)+'<div class="price">'+(own?'Owned':'$'+g.cost+' · Requires Lv '+g.lv)+'</div>'+(!own?'<button data-buy="'+g.id+'" '+(cash<g.cost||level<g.lv?'disabled':'')+'>BUY PRIMARY</button>':'<button data-equip="'+g.id+'" '+(eq?'disabled':'')+'>'+(eq?'EQUIPPED IN PRIMARY':'EQUIP PRIMARY')+'</button>')+'</div>'}).join('');
+ const list=guns.filter(g=>weaponSlot(g)==='primary').sort((a,b)=>a.id==='ak47'?-1:b.id==='ak47'?1:0);
+ html='<div class="eyebrow" style="grid-column:1/-1">NEW: AK-47 · PRIMARY WEAPONS · PRESS 1 TO USE</div>'+list.map(g=>{let own=owned.has(g.id),eq=primaryGunId===g.id;return '<div class="item weapon-item">'+itemArt(g.id,g.color)+'<h3>'+g.name+(eq?' ✓':'')+'</h3>'+weaponStats(g)+'<div class="price">'+(own?'Owned':'$'+g.cost+' · Requires Lv '+g.lv)+'</div>'+(!own?'<button data-buy="'+g.id+'" '+(cash<g.cost||level<g.lv?'disabled':'')+'>BUY PRIMARY</button>':'<button data-equip="'+g.id+'" '+(eq?'disabled':'')+'>'+(eq?'EQUIPPED IN PRIMARY':'EQUIP PRIMARY')+'</button>')+'</div>'}).join('');
 }
 if(tab==='secondary'){
  const list=guns.filter(g=>weaponSlot(g)==='secondary');
