@@ -73,11 +73,12 @@ function getWeaponRarity(id){return weaponRarityTiers[weaponRarityById[id]]?weap
 function withWeaponRarity(base,forceRarity){
  if(!base)return base;
  const rarity=weaponRarityTiers[forceRarity]?forceRarity:getWeaponRarity(base.id),mult=weaponRarityTiers[rarity].multiplier;
- const g={...base,rarity,rarityMultiplier:mult,rangeMultiplier:mult,blastRadius:base.id==='rpg'?220*mult:0,spinUp:2,moveSpeedMult:base.id==='minigun'?.5:base.id==='m249'?.7:1};
+ const baseSpread=base.spread===undefined?.018:base.spread;
+ const g={...base,spread:baseSpread*(isShotgun(base)?1:1.5),rarity,rarityMultiplier:mult,rangeMultiplier:mult,blastRadius:base.id==='rpg'?220*mult:0,spinUp:2,moveSpeedMult:base.id==='minigun'?.5:base.id==='m249'?.7:1};
  if(mult!==1){
   g.d=base.d*mult;
   if(base.id==='rpg')g.speed=(base.speed||1)*mult;
-  g.spread=(base.spread === undefined ? 0.018 : base.spread)/mult;
+  g.spread=g.spread/mult;
  }
  return g
 }
