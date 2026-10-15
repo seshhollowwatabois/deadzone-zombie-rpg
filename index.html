@@ -73,11 +73,10 @@ function getWeaponRarity(id){return weaponRarityTiers[weaponRarityById[id]]?weap
 function withWeaponRarity(base,forceRarity){
  if(!base)return base;
  const rarity=weaponRarityTiers[forceRarity]?forceRarity:getWeaponRarity(base.id),mult=weaponRarityTiers[rarity].multiplier;
- const g={...base,rarity,rarityMultiplier:mult,rangeMultiplier:mult,blastRadius:base.id==='rpg'?220*mult:0,spinUp:base.id==='minigun'?.45/mult:.45,moveSpeedMult:base.id==='minigun'?1-.5/mult:base.id==='m249'?1-.3/mult:1};
+ const g={...base,rarity,rarityMultiplier:mult,rangeMultiplier:mult,blastRadius:base.id==='rpg'?220*mult:0,spinUp:base.id==='minigun'?.45/mult:.45,moveSpeedMult:base.id==='minigun'?.5:base.id==='m249'?.7:1};
  if(mult!==1){
   g.d=base.d*mult;
   g.rate=base.rate/mult;
-  g.mag=Math.max(1,Math.round(base.mag*mult));
   g.reload=base.reload/mult;
   g.speed=(base.speed||1)*mult;
   g.spread=(base.spread === undefined ? 0.018 : base.spread)/mult;
@@ -442,7 +441,7 @@ function rarityUpgradePreview(base,targetRarity){
   ['RANGE','×'+before.rangeMultiplier.toFixed(2),'×'+after.rangeMultiplier.toFixed(2)],
   [base.id==='rpg'?'BLAST RADIUS':'PIERCE',base.id==='rpg'?Math.round(before.blastRadius):String(before.pierce||0),base.id==='rpg'?Math.round(after.blastRadius):String(after.pierce||0)]
  ];
- return '<div class="rarity-preview"><div class="rarity-preview-title">NEXT TIER PREVIEW · '+weaponRarityTiers[before.rarity].name+' → '+weaponRarityTiers[targetRarity].name+'</div><div class="rarity-preview-grid">'+cells.map(x=>'<div class="rarity-preview-stat"><small>'+x[0]+'</small><b>'+x[1]+' <span>→</span> '+x[2]+'</b></div>').join('')+'</div><div class="rarity-preview-note">Pierce is unchanged. Damage shown per pellet × pellet count for shotguns.</div></div>'
+ return '<div class="rarity-preview"><div class="rarity-preview-title">NEXT TIER PREVIEW · '+weaponRarityTiers[before.rarity].name+' → '+weaponRarityTiers[targetRarity].name+'</div><div class="rarity-preview-grid">'+cells.map(x=>'<div class="rarity-preview-stat"><small>'+x[0]+'</small><b>'+x[1]+' <span>→</span> '+x[2]+'</b></div>').join('')+'</div><div class="rarity-preview-note">Magazine size, movement penalties and pierce are unchanged. Damage shown per pellet × pellet count for shotguns.</div></div>'
 }
 function weaponStats(g){
 g=withWeaponRarity(g);
@@ -581,7 +580,7 @@ if(tab==='relics'){
   const rank=getWeaponRarity(g.id),ri=weaponRarityTiers[rank],recipe=weaponUpgradeRecipes[rank],next=recipe&&weaponRarityTiers[recipe.next],have=recipe?(relicCounts[recipe.relic]||0):0,ready=recipe&&have>=recipe.amount;
   return '<div class="item relic-weapon-card" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+(recipe?rarityUpgradePreview(g,recipe.next)+'<div class="statsline">UPGRADE TO <b style="color:'+next.color+'">'+next.name+'</b> · COST '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><div class="statsline">YOU HAVE '+have+' / '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><button data-upgrade-weapon="'+g.id+'" '+(ready?'':'disabled')+'>UPGRADE TO '+next.name+'</button>':'<div class="statsline" style="color:'+ri.color+'">MAXIMUM RARITY REACHED</div>')+'</div>'
  }).join('');
- const rarityGuide='<div class="rarity-guide"><div class="eyebrow">HOW EACH RARITY UPGRADES STATS</div><div class="rarity-tier-guide">'+Object.keys(weaponRarityTiers).map(r=>{const t=weaponRarityTiers[r],pct=Math.round((t.multiplier-1)*100);return '<div class="rarity-tier" style="border-color:'+t.color+'"><b style="color:'+t.color+'">'+t.name+'</b><strong>×'+t.multiplier.toFixed(2)+'</strong><small>'+(pct?'+'+pct+'%':'BASE STATS')+'</small></div>'}).join('')+'</div><div class="rarity-guide-copy"><b>Damage, fire rate, projectile speed and range:</b> multiplied by the tier value. <b>Magazine size and shotgun pellets:</b> multiplied, then rounded to a whole number. <b>Reload time, spread and minigun spin-up:</b> divided by that value, so lower is better. <b>Minigun/M249 movement penalties:</b> become less severe. <b>Pierce:</b> never changes.</div></div>';
+ const rarityGuide='<div class="rarity-guide"><div class="eyebrow">HOW EACH RARITY UPGRADES STATS</div><div class="rarity-tier-guide">'+Object.keys(weaponRarityTiers).map(r=>{const t=weaponRarityTiers[r],pct=Math.round((t.multiplier-1)*100);return '<div class="rarity-tier" style="border-color:'+t.color+'"><b style="color:'+t.color+'">'+t.name+'</b><strong>×'+t.multiplier.toFixed(2)+'</strong><small>'+(pct?'+'+pct+'%':'BASE STATS')+'</small></div>'}).join('')+'</div><div class="rarity-guide-copy"><b>Damage, fire rate, projectile speed and range:</b> multiplied by the tier value. <b>Magazine size:</b> unchanged at every rarity. <b>Shotgun pellet count:</b> still scales with rarity. <b>Reload time, spread and minigun spin-up:</b> divided by that value, so lower is better. <b>Movement penalties:</b> unchanged at every rarity. <b>Pierce:</b> never changes.</div></div>';
  html='<div style="grid-column:1/-1"><div class="eyebrow">BOSS RELICS · WEAPON RARITY</div><p>Bosses drop one relic when their chest is opened. Use relics to upgrade weapons. The preview on each weapon shows its current stats → the next rarity.</p><div class="grid">'+relicCards+'</div>'+rarityGuide+'<h2 style="margin-top:18px">UPGRADE OWNED WEAPONS</h2><div class="grid">'+(upgradeCards||'<div class="item"><p>Buy a weapon first to upgrade its rarity.</p></div>')+'</div><p style="font-size:11px;color:#aab6ab">Costs: 4 Common relics → Rare · 6 Rare relics → Epic · 8 Legendary relics → Legendary.</p></div>';
 }
 
