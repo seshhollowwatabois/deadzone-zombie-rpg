@@ -23,6 +23,33 @@
 .weapon-item{height:206px;min-height:206px;grid-template-columns:minmax(0,.9fr) minmax(0,1fr);grid-template-rows:auto minmax(0,1fr) 0 auto auto 0}
 .weapon-item .itemart{height:107px;align-self:center}
 @media(max-width:620px){.weapon-item{height:228px;min-height:228px}}
+
+/* Relic window: keep weapon stat SVGs compact instead of using the browser's oversized default SVG dimensions. */
+.relic-weapon-card{min-width:0;overflow:hidden;gap:8px}
+.relic-weapon-card .weapon-stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px;width:100%;min-width:0;margin:2px 0}
+.relic-weapon-card .weapon-stat{display:flex;align-items:center;gap:5px;min-width:0;overflow:hidden;color:#a6ddfa}
+.relic-weapon-card .stat-icon{display:flex;width:15px!important;height:15px!important;min-width:15px;max-width:15px;flex:0 0 15px!important;align-items:center;justify-content:center;overflow:hidden;color:#53b9f2}
+.relic-weapon-card .stat-icon svg{display:block;width:15px!important;height:15px!important;min-width:15px;max-width:15px;min-height:15px;max-height:15px;overflow:hidden}
+.relic-weapon-card .stat-copy{display:flex;min-width:0;flex-direction:column;gap:2px;line-height:1.05}
+.relic-weapon-card .stat-copy small{font-size:8px;letter-spacing:.25px;color:#83a9c1;font-weight:800;white-space:nowrap}
+.relic-weapon-card .stat-copy b{font-size:11px;color:#edf8ff;font-weight:900;white-space:nowrap}
+.rarity-guide{margin:16px 0 18px;padding:12px;border:1px solid #405558;border-radius:9px;background:#101b1e}
+.rarity-tier-guide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:9px 0}
+.rarity-tier{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 3px;border:1px solid;border-radius:7px;background:#172326}
+.rarity-tier b{font-size:10px;letter-spacing:.5px}
+.rarity-tier strong{font-size:19px;color:#edf4ef}
+.rarity-tier small{font-size:9px;color:#aab6ab;font-weight:800}
+.rarity-guide-copy{font-size:11px;line-height:1.55;color:#b7c8c2}
+.rarity-guide-copy b{color:#e8f2ed}
+.rarity-preview{margin:3px 0 5px;padding:8px;border:1px solid #344a4d;border-radius:7px;background:#101b1e}
+.rarity-preview-title{font-size:9px;font-weight:900;letter-spacing:.5px;color:#c7d8d0;margin-bottom:7px}
+.rarity-preview-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px 8px}
+.rarity-preview-stat{display:flex;min-width:0;flex-direction:column;gap:3px}
+.rarity-preview-stat small{font-size:8px;letter-spacing:.3px;font-weight:800;color:#829f95}
+.rarity-preview-stat b{font-size:10px;line-height:1.2;color:#eef5f0;overflow-wrap:anywhere}
+.rarity-preview-stat b span{color:#a8e56b}
+.rarity-preview-note{font-size:9px;color:#93aaa0;margin-top:7px;line-height:1.35}
+@media(max-width:620px){.relic-weapon-card .stat-icon,.relic-weapon-card .stat-icon svg{width:13px!important;height:13px!important;min-width:13px;max-width:13px;min-height:13px;max-height:13px;flex-basis:13px!important}.relic-weapon-card .stat-copy small{font-size:7px}.relic-weapon-card .stat-copy b{font-size:10px}.rarity-tier-guide{grid-template-columns:repeat(2,minmax(0,1fr))}.rarity-tier strong{font-size:17px}.rarity-guide{padding:9px}.rarity-preview{padding:7px}.rarity-preview-stat b{font-size:9px}}
 </style></head><body><div class="game"><canvas id="c"></canvas><div class="hud"><div class="top"><div class="logo">DEADZONE<small>OUTBREAK SURVIVAL</small></div><div class="stats"><div class="pill">WAVE <b id="wave">1</b></div><div class="pill">INFECTED <b id="count">0</b></div><div class="pill">CASH <b id="cash">$180</b></div><div class="pill">LVL <b id="level">1</b></div><button id="shop">LOADOUT [B]</button><button id="pause">Ⅱ</button></div></div><div class="hint">WASD move · Mouse aim · Click shoot · 1 primary · 2 secondary · G deploy turret · R reload / ammo box refill · B armory</div><div class="announce" id="announce">WAVE 1<small>THEY'RE COMING</small></div><div class="bossbar" id="bossbar"><div class="bossbar-head"><span id="bossname">BOSS</span><span id="bosshp">0 / 0</span></div><div class="bossbar-track"><div class="bossbar-fill" id="bossfill"></div></div></div><div class="vitals"><div class="label"><span>HEALTH</span><b id="hptext">100 / 100</b></div><div class="bar"><div class="fill" id="hpbar"></div></div><div class="label"><span>EXPERIENCE</span><b id="xptext">0 / 100 XP</b></div><div class="bar" style="margin-bottom:0"><div class="fill xp" id="xpbar" style="width:0"></div></div></div><div class="weapon"><strong id="weaponname">Service Pistol</strong><span id="ammo">12 / ∞ · READY</span><span id="armorname">No armor equipped</span></div><div class="toast" id="toast"></div><div class="streak-money" id="streakMoney"></div><canvas id="map" class="minimap" width="200" height="150"></canvas></div><div class="overlay" id="overlay"><div class="modal" id="modal"></div></div></div>
 <script>
 (()=>{'use strict';const $=s=>document.querySelector(s),c=$('#c'),ctx=c.getContext('2d'),map=$('#map'),mctx=map.getContext('2d');let W=innerWidth,H=innerHeight,D=Math.min(devicePixelRatio||1,2);function resize(){W=innerWidth;H=innerHeight;c.width=W*D;c.height=H*D;c.style.width=W+'px';c.style.height=H+'px';ctx.setTransform(D,0,0,D,0,0)}addEventListener('resize',resize);resize();
@@ -43,9 +70,9 @@ let player=null,zs=[],shots=[],rockets=[],blasts=[],laserBeams=[],particles=[],t
 const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),getGun=()=>withWeaponRarity(guns.find(g=>g.id===gunId)||guns[0]),armor=()=>armors.find(a=>a.id===armorId),maxHp=()=>100+(armor()?.hp||0),red=()=>0,damage=()=>getGun().d,speed=()=>player.speed*(1+(armor()?.speed||0))*(getGun().moveSpeedMult||1),bonus=()=>1;
 
 function getWeaponRarity(id){return weaponRarityTiers[weaponRarityById[id]]?weaponRarityById[id]:'common'}
-function withWeaponRarity(base){
+function withWeaponRarity(base,forceRarity){
  if(!base)return base;
- const rarity=getWeaponRarity(base.id),mult=weaponRarityTiers[rarity].multiplier;
+ const rarity=weaponRarityTiers[forceRarity]?forceRarity:getWeaponRarity(base.id),mult=weaponRarityTiers[rarity].multiplier;
  const g={...base,rarity,rarityMultiplier:mult,rangeMultiplier:mult,blastRadius:base.id==='rpg'?220*mult:0,spinUp:base.id==='minigun'?.45/mult:.45,moveSpeedMult:base.id==='minigun'?1-.5/mult:base.id==='m249'?1-.3/mult:1};
  if(mult!==1){
   g.d=base.d*mult;
@@ -401,6 +428,22 @@ function hud(){if(!player)return;$('#wave').textContent=wave;$('#count').textCon
 function modal(html){$('#modal').innerHTML=html;$('#overlay').style.display='flex'}function hide(){$('#overlay').style.display='none'}
 function menu(){state='menu';modal(`<div class="eyebrow">EMERGENCY BROADCAST // DAY 19</div><h1>THE CITY<br>IS LOST.</h1><p>One survivor. Endless infected. Scavenge cash, build your loadout and hold the line against the outbreak.</p><div class="grid"><div class="item"><h3>COMBAT</h3><p>WASD move · Mouse aim · Left-click fire · 1 primary · 2 secondary · R reload.</p></div><div class="item"><h3>SURVIVAL RPG</h3><p>Clear waves for rewards. Buy weapons and gear. Progress saves in this browser.</p></div></div><div class="actions"><button class="primary" id="deploy">DEPLOY</button><button id="menuShop">ARMORY</button><button id="reset">RESET PROGRESS</button></div><p style="font-size:11px">Prototype 0.1 · Single player · Browser save</p>`);$('#deploy').onclick=()=>{if(!player)startFresh();else{state='play';if(wave===0)startWave()}state='play';hide();announce('DEPLOYED','STAY ALIVE')};$('#menuShop').onclick=()=>shopOpen();$('#reset').onclick=()=>{if(confirm('Delete saved progress?')){localStorage.removeItem('deadzone-rpg');player=null;cash=180;wave=0;level=1;xp=0;xpNext=100;kills=0;killStreak=0;lastKillAt=0;relicCounts={common:0,rare:0,epic:0,legendary:0};weaponRarityById={};bossChests=[];turretOwned=false;turretEquipped=false;turret=null;turretFireT=0;gunId='pistol';primaryGunId=null;secondaryGunId='pistol';activeSlot='secondary';ammoByGun={pistol:16};owned=new Set(['pistol']);armorId=null;ranks={};menu()}}}
 function weaponSpreadText(g){return g.id==='rpg'?'NONE':'±'+((g.spread||.018)*180/Math.PI).toFixed(1)+'°'}
+function rarityUpgradePreview(base,targetRarity){
+ const before=withWeaponRarity(base),after=withWeaponRarity(base,targetRarity);
+ const shotgun=isShotgun(base);
+ const damageText=g=>shotgun?Math.round(g.d)+' × '+g.pellets+' pel.':String(Math.round(g.d));
+ const cells=[
+  ['DAMAGE',damageText(before),damageText(after)],
+  ['FIRE RATE',(1/before.rate).toFixed(1)+'/s',(1/after.rate).toFixed(1)+'/s'],
+  [base.id==='rpg'?'AMMO':'MAGAZINE',String(before.mag),String(after.mag)],
+  ['RELOAD',before.reload.toFixed(2)+'s',after.reload.toFixed(2)+'s'],
+  ['SPREAD',weaponSpreadText(before),weaponSpreadText(after)],
+  ['PROJECTILE SPEED',Math.round(before.speed||0),Math.round(after.speed||0)],
+  ['RANGE','×'+before.rangeMultiplier.toFixed(2),'×'+after.rangeMultiplier.toFixed(2)],
+  [base.id==='rpg'?'BLAST RADIUS':'PIERCE',base.id==='rpg'?Math.round(before.blastRadius):String(before.pierce||0),base.id==='rpg'?Math.round(after.blastRadius):String(after.pierce||0)]
+ ];
+ return '<div class="rarity-preview"><div class="rarity-preview-title">NEXT TIER PREVIEW · '+weaponRarityTiers[before.rarity].name+' → '+weaponRarityTiers[targetRarity].name+'</div><div class="rarity-preview-grid">'+cells.map(x=>'<div class="rarity-preview-stat"><small>'+x[0]+'</small><b>'+x[1]+' <span>→</span> '+x[2]+'</b></div>').join('')+'</div><div class="rarity-preview-note">Pierce is unchanged. Damage shown per pellet × pellet count for shotguns.</div></div>'
+}
 function weaponStats(g){
 g=withWeaponRarity(g);
 const icons={
@@ -536,9 +579,10 @@ if(tab==='relics'){
  const relicCards=Object.keys(weaponRarityTiers).map(r=>{const ri=weaponRarityTiers[r];return '<div class="item" style="border:1px solid '+ri.color+';box-shadow:inset 0 0 0 1px '+ri.color+'22"><div class="eyebrow" style="color:'+ri.color+'">'+ri.name+' RELICS</div><div style="font-size:32px;font-weight:1000;color:'+ri.color+'">'+(relicCounts[r]||0)+'</div><p>Used to upgrade weapons along the rarity path.</p></div>'}).join('');
  const upgradeCards=guns.filter(g=>owned.has(g.id)).map(g=>{
   const rank=getWeaponRarity(g.id),ri=weaponRarityTiers[rank],recipe=weaponUpgradeRecipes[rank],next=recipe&&weaponRarityTiers[recipe.next],have=recipe?(relicCounts[recipe.relic]||0):0,ready=recipe&&have>=recipe.amount;
-  return '<div class="item" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+(recipe?'<div class="statsline">UPGRADE TO <b style="color:'+next.color+'">'+next.name+'</b> · COST '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><div class="statsline">YOU HAVE '+have+' / '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><button data-upgrade-weapon="'+g.id+'" '+(ready?'':'disabled')+'>UPGRADE TO '+next.name+'</button>':'<div class="statsline" style="color:'+ri.color+'">MAXIMUM RARITY REACHED</div>')+'</div>'
+  return '<div class="item relic-weapon-card" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+(recipe?rarityUpgradePreview(g,recipe.next)+'<div class="statsline">UPGRADE TO <b style="color:'+next.color+'">'+next.name+'</b> · COST '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><div class="statsline">YOU HAVE '+have+' / '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><button data-upgrade-weapon="'+g.id+'" '+(ready?'':'disabled')+'>UPGRADE TO '+next.name+'</button>':'<div class="statsline" style="color:'+ri.color+'">MAXIMUM RARITY REACHED</div>')+'</div>'
  }).join('');
- html='<div style="grid-column:1/-1"><div class="eyebrow">BOSS RELICS · WEAPON RARITY</div><p>Bosses drop one relic when their chest is opened. Use relics to upgrade weapons. Each rarity improves damage, fire rate, magazine capacity, reload speed, spread, projectile speed, range, and other combat stats. <b>Pierce never increases.</b></p><div class="grid">'+relicCards+'</div><h2 style="margin-top:18px">UPGRADE OWNED WEAPONS</h2><div class="grid">'+(upgradeCards||'<div class="item"><p>Buy a weapon first to upgrade its rarity.</p></div>')+'</div><p style="font-size:11px;color:#aab6ab">Costs: 4 Common relics → Rare · 6 Rare relics → Epic · 8 Legendary relics → Legendary.</p></div>';
+ const rarityGuide='<div class="rarity-guide"><div class="eyebrow">HOW EACH RARITY UPGRADES STATS</div><div class="rarity-tier-guide">'+Object.keys(weaponRarityTiers).map(r=>{const t=weaponRarityTiers[r],pct=Math.round((t.multiplier-1)*100);return '<div class="rarity-tier" style="border-color:'+t.color+'"><b style="color:'+t.color+'">'+t.name+'</b><strong>×'+t.multiplier.toFixed(2)+'</strong><small>'+(pct?'+'+pct+'%':'BASE STATS')+'</small></div>'}).join('')+'</div><div class="rarity-guide-copy"><b>Damage, fire rate, projectile speed and range:</b> multiplied by the tier value. <b>Magazine size and shotgun pellets:</b> multiplied, then rounded to a whole number. <b>Reload time, spread and minigun spin-up:</b> divided by that value, so lower is better. <b>Minigun/M249 movement penalties:</b> become less severe. <b>Pierce:</b> never changes.</div></div>';
+ html='<div style="grid-column:1/-1"><div class="eyebrow">BOSS RELICS · WEAPON RARITY</div><p>Bosses drop one relic when their chest is opened. Use relics to upgrade weapons. The preview on each weapon shows its current stats → the next rarity.</p><div class="grid">'+relicCards+'</div>'+rarityGuide+'<h2 style="margin-top:18px">UPGRADE OWNED WEAPONS</h2><div class="grid">'+(upgradeCards||'<div class="item"><p>Buy a weapon first to upgrade its rarity.</p></div>')+'</div><p style="font-size:11px;color:#aab6ab">Costs: 4 Common relics → Rare · 6 Rare relics → Epic · 8 Legendary relics → Legendary.</p></div>';
 }
 
 if(tab==='gear')html='<div class="item">'+itemArt('turret','#7dff70')+'<h3>Auto-Turret'+(turretEquipped?' ✓':'')+'</h3><p>Deploy a stationary automated turret with a 260-unit range. Fires at nearby infected for 20 damage per shot at 3 shots per second. Line of sight required.</p><div class="statsline">DAMAGE <b>20</b> · FIRE RATE <b>3.0/s</b> · RANGE <b>260</b></div><div class="price">'+(turretOwned?'Owned':'$600')+'</div>'+(turretOwned?'<button data-turret-equip>'+(turretEquipped?'EQUIPPED · G TO DEPLOY':'EQUIP TURRET')+'</button>':'<button data-turret-buy '+(cash<600?'disabled':'')+'>BUY & EQUIP · $600</button>')+'<p style="font-size:11px">Press G during combat to deploy/redeploy it at your position.</p></div>';
