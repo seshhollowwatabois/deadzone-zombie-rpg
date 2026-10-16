@@ -73,10 +73,10 @@ const world={w:2200,h:1650},guns=[{id:'pistol',name:'M9',desc:'Reliable, accurat
 
 const weaponRarityTiers={
 common:{name:'COMMON',color:'#a8adb4',multiplier:1},
-uncommon:{name:'UNCOMMON',color:'#45df74',multiplier:1.10},
-rare:{name:'RARE',color:'#4da3ff',multiplier:1.20},
-epic:{name:'EPIC',color:'#c084fc',multiplier:1.45},
-legendary:{name:'LEGENDARY',color:'#ffca45',multiplier:1.75}
+uncommon:{name:'UNCOMMON',color:'#45df74',multiplier:1.20},
+rare:{name:'RARE',color:'#4da3ff',multiplier:1.45},
+epic:{name:'EPIC',color:'#c084fc',multiplier:1.75},
+legendary:{name:'LEGENDARY',color:'#ffca45',multiplier:2.00}
 };
 // Weapon rarity changes only through boss weapon drops, never by spending cash.
 let player=null,zs=[],shots=[],rockets=[],blasts=[],laserBeams=[],particles=[],texts=[],obstacles=[],drops=[],ammoBoxes=[],bossChests=[],lootRoll=null,lootRollTimer=null,relicCounts={common:0,rare:0,epic:0,legendary:0},weaponRarityById={},turret=null,turretFireT=0,turretOwned=false,turretEquipped=false,keys=new Set(),mouse={x:W/2,y:H/2,down:false},cash=180,wave=0,level=1,xp=0,xpNext=100,kills=0,killStreak=0,lastKillAt=0,killStreakSoundQueue=[],killStreakSoundBusy=false,killStreakSoundTimer=null,streakCash=0,streakCashLastAt=0,streakCashHideTimer=null,gunId='pistol',primaryGunId=null,secondaryGunId='pistol',activeSlot='secondary',ammoByGun={pistol:16},reserveByGun={pistol:32},owned=new Set(['pistol']),armorId=null,ranks={},state='menu',tab='loadout',spawned=0,total=0,spawnT=0,breakT=0,pendingBoss=null,bossSpawnT=0,fireT=0,reloadT=0,minigunSpin=0,toastT=0,annT=0,shake=0,last=0,fromShop='play';
