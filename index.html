@@ -61,11 +61,7 @@ rare:{name:'RARE',color:'#4da3ff',multiplier:1.20},
 epic:{name:'EPIC',color:'#c084fc',multiplier:1.45},
 legendary:{name:'LEGENDARY',color:'#ffca45',multiplier:1.75}
 };
-const weaponUpgradeRecipes={
-common:{next:'rare',cash:500},
-rare:{next:'epic',cash:1200},
-epic:{next:'legendary',cash:2500}
-};
+// Weapon rarity changes only through boss weapon drops, never by spending cash.
 let player=null,zs=[],shots=[],rockets=[],blasts=[],laserBeams=[],particles=[],texts=[],obstacles=[],drops=[],ammoBoxes=[],bossChests=[],relicCounts={common:0,rare:0,epic:0,legendary:0},weaponRarityById={},turret=null,turretFireT=0,turretOwned=false,turretEquipped=false,keys=new Set(),mouse={x:W/2,y:H/2,down:false},cash=180,wave=0,level=1,xp=0,xpNext=100,kills=0,killStreak=0,lastKillAt=0,killStreakSoundQueue=[],killStreakSoundBusy=false,killStreakSoundTimer=null,streakCash=0,streakCashLastAt=0,streakCashHideTimer=null,gunId='pistol',primaryGunId=null,secondaryGunId='pistol',activeSlot='secondary',ammoByGun={pistol:16},reserveByGun={pistol:32},owned=new Set(['pistol']),armorId=null,ranks={},state='menu',tab='loadout',spawned=0,total=0,spawnT=0,breakT=0,pendingBoss=null,bossSpawnT=0,fireT=0,reloadT=0,minigunSpin=0,toastT=0,annT=0,shake=0,last=0,fromShop='play';
 const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),getGun=()=>withWeaponRarity(guns.find(g=>g.id===gunId)||guns[0]),armor=()=>armors.find(a=>a.id===armorId),maxHp=()=>100+(armor()?.hp||0),maxStamina=()=>100+(armor()?.stamina||0),red=()=>0,damage=()=>getGun().d,speed=(sprinting=false)=>player.speed*(getGun().moveSpeedMult||1)*(armor()?.speedMult||1)*(sprinting?2:1),bonus=()=>1;
 
@@ -577,13 +573,12 @@ if(tab==='secondary'){
 }
 
 if(tab==='relics'){
- const upgradeCards=guns.filter(g=>owned.has(g.id)).map(g=>{
-  const rank=getWeaponRarity(g.id),ri=weaponRarityTiers[rank],recipe=weaponUpgradeRecipes[rank],next=recipe&&weaponRarityTiers[recipe.next],ready=recipe&&cash>=recipe.cash;
-  return '<div class="item relic-weapon-card" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+(recipe?rarityUpgradePreview(g,recipe.next)+'<div class="statsline">UPGRADE TO <b style="color:'+next.color+'">'+next.name+'</b> · COST <b>$'+recipe.cash+'</b></div><div class="statsline">AVAILABLE CASH · $'+Math.floor(cash)+'</div><button data-upgrade-weapon="'+g.id+'" '+(ready?'':'disabled')+'>UPGRADE TO '+next.name+'</button>':'<div class="statsline" style="color:'+ri.color+'">MAXIMUM RARITY REACHED</div>')+'</div>'
+ const rarityCards=guns.filter(g=>owned.has(g.id)).map(g=>{
+  const rank=getWeaponRarity(g.id),ri=weaponRarityTiers[rank];
+  return '<div class="item relic-weapon-card" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+'<div class="statsline" style="color:'+ri.color+'">CURRENT RARITY · <b>'+ri.name+'</b></div></div>'
  }).join('');
- html='<div style="grid-column:1/-1"><div class="eyebrow">BOSS WEAPON DROPS · RARITY</div><p>Every boss chest contains a random weapon. Drop weights are normalized from your values because they total 116: <b style="color:'+weaponRarityTiers.common.color+'">COMMON ~69%</b> · <b style="color:'+weaponRarityTiers.rare.color+'">RARE ~26%</b> · <b style="color:'+weaponRarityTiers.epic.color+'">EPIC ~4%</b> · <b style="color:'+weaponRarityTiers.legendary.color+'">LEGENDARY ~1%</b>. Dropped weapons unlock immediately, regardless of level. Duplicate drops improve the weapon if their rarity is higher; otherwise they grant cash.</p><h2 style="margin-top:18px">UPGRADE OWNED WEAPONS</h2><p>Manual rarity upgrades stay available and now cost cash because bosses drop weapons instead of relics.</p><div class="grid">'+(upgradeCards||'<div class="item"><p>Claim a boss weapon or buy a weapon first to upgrade its rarity.</p></div>')+'</div></div>';
+ html='<div style="grid-column:1/-1"><div class="eyebrow">WEAPON RARITY COLLECTION</div><p>Boss chests are the only way to improve weapon rarity. A higher-rarity duplicate upgrades that weapon permanently. Rarity is saved per weapon and appears in the shop; cash cannot be used to upgrade rarity.</p><h2 style="margin-top:18px">YOUR OWNED WEAPONS</h2><div class="grid">'+(rarityCards||'<div class="item"><p>Defeat a boss and claim its weapon drop to start your collection.</p></div>')+'</div></div>';
 }
-
 if(tab==='gear')html='<div class="item">'+itemArt('turret','#7dff70')+'<h3>Auto-Turret'+(turretEquipped?' ✓':'')+'</h3><p>Deploy a stationary automated turret with a 260-unit range. Fires at nearby infected for 20 damage per shot at 3 shots per second. Line of sight required.</p><div class="statsline">DAMAGE <b>20</b> · FIRE RATE <b>3.0/s</b> · RANGE <b>260</b></div><div class="price">'+(turretOwned?'Owned':'$600')+'</div>'+(turretOwned?'<button data-turret-equip>'+(turretEquipped?'EQUIPPED · G TO DEPLOY':'EQUIP TURRET')+'</button>':'<button data-turret-buy '+(cash<600?'disabled':'')+'>BUY & EQUIP · $600</button>')+'<p style="font-size:11px">Press G during combat to deploy/redeploy it at your position.</p></div>';
  if(tab==='armor')html=armors.map(a=>'<div class="item">'+itemArt(a.id,'#8aa5a0')+'<h3>'+a.name+(armorId===a.id?' ✓':'')+'</h3><p>'+a.desc+'</p><div class="price">'+(armorId===a.id?'Equipped':'$'+a.cost)+'</div><button data-armor="'+a.id+'" '+(armorId===a.id||cash<a.cost?'disabled':'')+'>'+(armorId===a.id?'EQUIPPED':'BUY & EQUIP')+'</button></div>').join('');
 
@@ -592,7 +587,7 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{let g=guns.find(x=>x.id===b.dataset.buy);if(g&&cash>=g.cost&&level>=g.lv&&!owned.has(g.id)){cash-=g.cost;owned.add(g.id);ammoByGun[g.id]=g.mag;reserveByGun[g.id]=gunReserve(g);equipWeapon(weaponSlot(g),g.id,true);save();renderShop(dead);toast(g.name+' acquired and equipped')}});
 document.querySelectorAll('[data-equip]').forEach(b=>b.onclick=()=>{const g=guns.find(x=>x.id===b.dataset.equip);if(g&&equipWeapon(weaponSlot(g),g.id,true)){save();renderShop(dead)}});
 
-document.querySelectorAll('[data-upgrade-weapon]').forEach(b=>b.onclick=()=>{const id=b.dataset.upgradeWeapon;if(!owned.has(id))return;const rank=getWeaponRarity(id),recipe=weaponUpgradeRecipes[rank];if(!recipe)return;if(cash<recipe.cash){toast('NOT ENOUGH CASH');return}cash-=recipe.cash;weaponRarityById[id]=recipe.next;const base=guns.find(g=>g.id===id),mod=withWeaponRarity(base);ammoByGun[id]=Math.min(Number.isFinite(ammoByGun[id])?ammoByGun[id]:mod.mag,mod.mag);reserveByGun[id]=Math.min(reserveByGun[id]||0,gunReserve(mod)+mod.mag);if(player&&gunId===id){player.ammo=Math.min(player.ammo,mod.mag);ammoByGun[id]=player.ammo}save();renderShop(dead);toast(base.name+' UPGRADED TO '+weaponRarityTiers[recipe.next].name)});
+
 
 document.querySelectorAll('[data-armor]').forEach(b=>b.onclick=()=>{let a=armors.find(x=>x.id===b.dataset.armor);if(a&&cash>=a.cost){cash-=a.cost;armorId=a.id;if(player){player.maxHp=maxHp();player.hp=Math.min(player.maxHp,player.hp+30)}save();renderShop(dead)}});document.querySelectorAll('[data-turret-buy]').forEach(b=>b.onclick=()=>{if(cash>=600&&!turretOwned){cash-=600;turretOwned=true;turretEquipped=true;if(player)turret={x:player.x,y:player.y};turretFireT=0;save();renderShop(dead);toast('AUTO-TURRET ACQUIRED')}});document.querySelectorAll('[data-turret-equip]').forEach(b=>b.onclick=()=>{turretEquipped=!turretEquipped;if(!turretEquipped)turret=null;else if(player)turret={x:player.x,y:player.y};turretFireT=0;save();renderShop(dead)});
 
