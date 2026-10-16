@@ -625,7 +625,7 @@ if(tab==='primary'){
 if(tab==='secondary'){
  const secondaryRank={rpg:1,mp5k:2,python:3,pistol:4};
  const list=guns.filter(g=>weaponSlot(g)==='secondary').sort((a,b)=>secondaryRank[b.id]-secondaryRank[a.id]);
- html='<div class="eyebrow" style="grid-column:1/-1">SECONDARY WEAPONS · WORST TO BEST · PRESS 2 TO USE YOUR EQUIPPED SECONDARY</div>'+list.map(g=>{let own=owned.has(g.id),eq=secondaryGunId===g.id;return '<div class="item weapon-item">'+itemArt(g.id,g.color)+'<h3>'+g.name+(eq?' ✓':'')+'</h3>'+weaponStats(g)+'<div class="price">'+(own?'Owned':'$'+g.cost)+'</div>'+(!own?'<button data-buy="'+g.id+'" '+(cash<g.cost||level<g.lv?'disabled':'')+'>BUY SECONDARY</button>':'<button data-equip="'+g.id+'" '+(eq?'disabled':'')+'>'+(eq?'EQUIPPED IN SECONDARY':'EQUIP SECONDARY')+'</button>')+'</div>'}).join('');
+ html='<div class="eyebrow" style="grid-column:1/-1">SECONDARY WEAPONS · WORST TO BEST · PRESS 2 TO USE YOUR EQUIPPED SECONDARY</div>'+list.map(g=>{let own=owned.has(g.id),eq=secondaryGunId===g.id;return '<div class="item weapon-item" style="--rarity-color:'+weaponRarityTiers[getWeaponRarity(g.id)].color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+(eq?' ✓':'')+'</h3>'+weaponStats(g)+'<div class="price">'+(own?'Owned':'$'+g.cost)+'</div>'+(!own?'<button data-buy="'+g.id+'" '+(cash<g.cost||level<g.lv?'disabled':'')+'>BUY SECONDARY</button>':'<button data-equip="'+g.id+'" '+(eq?'disabled':'')+'>'+(eq?'EQUIPPED IN SECONDARY':'EQUIP SECONDARY')+'</button>')+'</div>'}).join('');
 }
 
 if(tab==='relics'){
