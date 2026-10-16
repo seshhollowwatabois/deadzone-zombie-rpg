@@ -62,9 +62,9 @@ epic:{name:'EPIC',color:'#c084fc',multiplier:1.45},
 legendary:{name:'LEGENDARY',color:'#ffca45',multiplier:1.75}
 };
 const weaponUpgradeRecipes={
-common:{next:'rare',relic:'common',amount:4},
-rare:{next:'epic',relic:'rare',amount:6},
-epic:{next:'legendary',relic:'legendary',amount:8}
+common:{next:'rare',cash:500},
+rare:{next:'epic',cash:1200},
+epic:{next:'legendary',cash:2500}
 };
 let player=null,zs=[],shots=[],rockets=[],blasts=[],laserBeams=[],particles=[],texts=[],obstacles=[],drops=[],ammoBoxes=[],bossChests=[],relicCounts={common:0,rare:0,epic:0,legendary:0},weaponRarityById={},turret=null,turretFireT=0,turretOwned=false,turretEquipped=false,keys=new Set(),mouse={x:W/2,y:H/2,down:false},cash=180,wave=0,level=1,xp=0,xpNext=100,kills=0,killStreak=0,lastKillAt=0,killStreakSoundQueue=[],killStreakSoundBusy=false,killStreakSoundTimer=null,streakCash=0,streakCashLastAt=0,streakCashHideTimer=null,gunId='pistol',primaryGunId=null,secondaryGunId='pistol',activeSlot='secondary',ammoByGun={pistol:16},reserveByGun={pistol:32},owned=new Set(['pistol']),armorId=null,ranks={},state='menu',tab='loadout',spawned=0,total=0,spawnT=0,breakT=0,pendingBoss=null,bossSpawnT=0,fireT=0,reloadT=0,minigunSpin=0,toastT=0,annT=0,shake=0,last=0,fromShop='play';
 const rand=(a,b)=>a+Math.random()*(b-a),clamp=(v,a,b)=>Math.max(a,Math.min(b,v)),getGun=()=>withWeaponRarity(guns.find(g=>g.id===gunId)||guns[0]),armor=()=>armors.find(a=>a.id===armorId),maxHp=()=>100+(armor()?.hp||0),maxStamina=()=>100+(armor()?.stamina||0),red=()=>0,damage=()=>getGun().d,speed=(sprinting=false)=>player.speed*(getGun().moveSpeedMult||1)*(armor()?.speedMult||1)*(sprinting?2:1),bonus=()=>1;
@@ -82,10 +82,7 @@ function withWeaponRarity(base,forceRarity){
  }
  return g
 }
-function rollRelicRarity(bossWave){
- const p=bossWave>=40?[.15,.27,.34,.24]:bossWave>=30?[.18,.32,.32,.18]:bossWave>=20?[.25,.35,.27,.13]:bossWave>=10?[.38,.35,.20,.07]:[.55,.30,.12,.03];
- const r=Math.random();return r<p[0]?'common':r<p[0]+p[1]?'rare':r<p[0]+p[1]+p[2]?'epic':'legendary'
-}
+function rollWeaponDropRarity(){const r=Math.random()*116;return r<1?'legendary':r<6?'epic':r<36?'rare':'common'}
 
 let soundCtx=null,noiseBuffer=null,lastEmptyClickAt=0;
 function initAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!soundCtx){soundCtx=new AC();noiseBuffer=soundCtx.createBuffer(1,soundCtx.sampleRate*.35,soundCtx.sampleRate);const data=noiseBuffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1}if(soundCtx.state==='suspended')soundCtx.resume()}catch(e){}}
@@ -97,11 +94,11 @@ function playReloadSound(g,shell=false){try{initAudio();if(!soundCtx||soundCtx.s
 function playReloadComplete(g){try{initAudio();if(!soundCtx||soundCtx.state!=='running')return;const ctx=soundCtx,t=ctx.currentTime,src=ctx.createBufferSource(),f=ctx.createBiquadFilter(),a=ctx.createGain(),o=ctx.createOscillator(),og=ctx.createGain();src.buffer=noiseBuffer;f.type='bandpass';f.frequency.setValueAtTime(g.id==='shotgun'||g.id==='spas12'?1050:2200,t);f.frequency.exponentialRampToValueAtTime(420,t+.095);f.Q.value=1.8;a.gain.setValueAtTime(.0001,t);a.gain.linearRampToValueAtTime(.17,t+.004);a.gain.exponentialRampToValueAtTime(.0001,t+.105);src.connect(f);f.connect(a);a.connect(ctx.destination);src.start(t);src.stop(t+.11);o.type='triangle';o.frequency.setValueAtTime(g.id==='shotgun'||g.id==='spas12'?210:520,t);o.frequency.exponentialRampToValueAtTime(125,t+.09);og.gain.setValueAtTime(.12,t);og.gain.exponentialRampToValueAtTime(.0001,t+.1);o.connect(og);og.connect(ctx.destination);o.start(t);o.stop(t+.11)}catch(e){}}function playKillStreakQueue(){if(killStreakSoundBusy||!killStreakSoundQueue.length)return;initAudio();if(!soundCtx)return;const play=()=>{if(!soundCtx||!killStreakSoundQueue.length){killStreakSoundBusy=false;return}killStreakSoundBusy=true;const streak=killStreakSoundQueue.shift(),ctx=soundCtx,t=ctx.currentTime,freq=330*Math.pow(2,(streak-2)*2/12),o=ctx.createOscillator(),a=ctx.createGain(),o2=ctx.createOscillator(),a2=ctx.createGain();o.type='triangle';o.frequency.setValueAtTime(freq,t);o.frequency.exponentialRampToValueAtTime(freq*1.04,t+.12);a.gain.setValueAtTime(.0001,t);a.gain.linearRampToValueAtTime(.24,t+.008);a.gain.exponentialRampToValueAtTime(.0001,t+.19);o.connect(a);a.connect(ctx.destination);o.start(t);o.stop(t+.2);o2.type='sine';o2.frequency.setValueAtTime(freq*2,t);a2.gain.setValueAtTime(.0001,t);a2.gain.linearRampToValueAtTime(.07,t+.006);a2.gain.exponentialRampToValueAtTime(.0001,t+.12);o2.connect(a2);a2.connect(ctx.destination);o2.start(t);o2.stop(t+.13);setTimeout(()=>{killStreakSoundBusy=false;playKillStreakQueue()},220)};if(soundCtx.state==='suspended')soundCtx.resume().then(play).catch(()=>{killStreakSoundBusy=false});else if(soundCtx.state==='running')play()}function playKillStreakSound(){try{const now=performance.now();killStreak=lastKillAt&&now-lastKillAt<=3000?Math.min(10,killStreak+1):1;lastKillAt=now;if(killStreak<2)return;killStreakSoundQueue=[killStreak];if(killStreakSoundTimer)clearTimeout(killStreakSoundTimer);killStreakSoundTimer=setTimeout(()=>{killStreakSoundTimer=null;playKillStreakQueue()},45)}catch(e){}}
 addEventListener('pointerdown',initAudio,{passive:true});addEventListener('keydown',initAudio);
 
-function save(){try{localStorage.setItem('deadzone-rpg',JSON.stringify({cash,wave,level,xp,xpNext,kills,gunId,primaryGunId,secondaryGunId,activeSlot,ammoByGun,reserveByGun,owned:[...owned],armorId,turretOwned,turretEquipped,ranks,relicCounts,weaponRarityById}))}catch(e){}}
+function save(){try{localStorage.setItem('deadzone-rpg',JSON.stringify({rewardSystemVersion:2,cash,wave,level,xp,xpNext,kills,gunId,primaryGunId,secondaryGunId,activeSlot,ammoByGun,reserveByGun,owned:[...owned],armorId,turretOwned,turretEquipped,ranks,relicCounts,weaponRarityById}))}catch(e){}}
 function load(){try{
-let s=JSON.parse(localStorage.getItem('deadzone-rpg')||'null');if(!s)return false;
+let s=JSON.parse(localStorage.getItem('deadzone-rpg')||'null');if(!s)return false;const migrateRelics=(s.rewardSystemVersion||0)<2;
 cash=s.cash??180;wave=s.wave||0;level=s.level||1;xp=s.xp||0;xpNext=s.xpNext||100;kills=s.kills||0;turretOwned=!!s.turretOwned;turretEquipped=!!s.turretEquipped;
-owned=new Set(s.owned||['pistol']);owned.add('pistol');armorId=armors.some(a=>a.id===s.armorId)?s.armorId:null;ranks={};relicCounts={common:0,rare:0,epic:0,legendary:0};if(s.relicCounts&&typeof s.relicCounts==='object'){for(const r of Object.keys(relicCounts))relicCounts[r]=Math.max(0,Math.floor(Number(s.relicCounts[r])||0))}weaponRarityById={};if(s.weaponRarityById&&typeof s.weaponRarityById==='object'){for(const [gid,rarity] of Object.entries(s.weaponRarityById)){if(owned.has(gid)&&guns.some(g=>g.id===gid)&&weaponRarityTiers[rarity])weaponRarityById[gid]=rarity}}
+owned=new Set(s.owned||['pistol']);owned.add('pistol');armorId=armors.some(a=>a.id===s.armorId)?s.armorId:null;ranks={};relicCounts={common:0,rare:0,epic:0,legendary:0};if(s.relicCounts&&typeof s.relicCounts==='object'){for(const r of Object.keys(relicCounts))relicCounts[r]=Math.max(0,Math.floor(Number(s.relicCounts[r])||0))}if(migrateRelics){cash+=Math.round(relicCounts.common*125+relicCounts.rare*200+relicCounts.epic*250+relicCounts.legendary*312.5);relicCounts={common:0,rare:0,epic:0,legendary:0}}weaponRarityById={};if(s.weaponRarityById&&typeof s.weaponRarityById==='object'){for(const [gid,rarity] of Object.entries(s.weaponRarityById)){if(owned.has(gid)&&guns.some(g=>g.id===gid)&&weaponRarityTiers[rarity])weaponRarityById[gid]=rarity}}
 ammoByGun=s.ammoByGun&&typeof s.ammoByGun==='object'?s.ammoByGun:{};
 reserveByGun=s.reserveByGun&&typeof s.reserveByGun==='object'?s.reserveByGun:{};
 for(const base of guns){const g=withWeaponRarity(base);if(!Number.isFinite(ammoByGun[g.id]))ammoByGun[g.id]=g.mag;if(!Number.isFinite(reserveByGun[g.id]))reserveByGun[g.id]=gunReserve(g);reserveByGun[g.id]=clamp(reserveByGun[g.id],0,gunReserve(g));if(g.id==='rpg')ammoByGun[g.id]=clamp(ammoByGun[g.id],0,g.mag);}
@@ -111,7 +108,7 @@ primaryGunId=s.primaryGunId&&s.primaryGunId!=='pistol'&&owned.has(s.primaryGunId
 const savedSecondary=guns.find(g=>g.id===s.secondaryGunId);secondaryGunId=savedSecondary&&weaponSlot(savedSecondary)==='secondary'&&owned.has(savedSecondary.id)?savedSecondary.id:'pistol';
 activeSlot=s.activeSlot==='primary'&&primaryGunId?'primary':s.activeSlot==='secondary'?'secondary':(legacyGun!=='pistol'&&primaryGunId?'primary':'secondary');
 gunId=activeSlot==='primary'?primaryGunId:secondaryGunId;
-return true
+save();return true
 }catch(e){return false}}
 function isShotgun(g){return !!g&&(g.id==='shotgun'||g.id==='spas12')}function shotgunReserve(g){return g&&g.id==='spas12'?18:12}function gunReserve(g){const base=g.id==='rpg'?1:isShotgun(g)?Math.round(shotgunReserve(g)*g.mag/6):g.mag*2;const vest=armor();if(g.id==='m249'||g.id==='minigun')return base+(vest?.reserveHeavyGuns?g.mag*vest.reserveHeavyGuns:0);return base+(vest?.reserveMagazines?(isShotgun(g)?6:g.mag*vest.reserveMagazines):0)}
 function newPlayer(){return{x:world.w/2,y:world.h/2,r:16,hp:100,maxHp:100,speed:110,stamina:maxStamina(),maxStamina:maxStamina(),sprintLocked:false,sprinting:false,sprintRegenDelay:0,staminaBarTimer:0,staminaBarValue:maxStamina(),angle:0,walk:0,flash:0,inv:0,ammo:ammoByGun[gunId]??getGun().mag}}function refillRunAmmo(){for(const id of owned){const base=guns.find(x=>x.id===id);if(!base)continue;const g=withWeaponRarity(base);ammoByGun[id]=g.mag;reserveByGun[id]=gunReserve(g)}if(player)player.ammo=ammoByGun[gunId]??getGun().mag}function initWorld(){obstacles=[];for(let i=0;i<45;i++){let x=rand(80,world.w-80),y=rand(80,world.h-80);if(Math.hypot(x-world.w/2,y-world.h/2)<180)continue;let t=Math.random();obstacles.push({x,y,w:t<.25?rand(80,140):rand(40,75),h:t<.25?rand(32,50):rand(42,85),type:t<.25?'car':t<.6?'rubble':'barrier',rot:rand(-.12,.12)})}}
@@ -148,11 +145,12 @@ function openNearbyBossChest(){
  let best=-1,dist=76;
  for(let i=0;i<bossChests.length;i++){const ch=bossChests[i];if(ch.opened)continue;const d=Math.hypot(player.x-ch.x,player.y-ch.y);if(d<dist){dist=d;best=i}}
  if(best<0)return false;
- const chest=bossChests[best],rarity=rollRelicRarity(chest.wave||wave);
- relicCounts[rarity]=(relicCounts[rarity]||0)+1;
- chest.opened=true;save();
- const ri=weaponRarityTiers[rarity];announce(ri.name+' RELIC FOUND','+1 '+ri.name+' RELIC');
- toast(ri.name+' RELIC ACQUIRED');return true
+ const chest=bossChests[best],base=guns[Math.floor(Math.random()*guns.length)],rarity=rollWeaponDropRarity(),rarityOrder={common:0,rare:1,epic:2,legendary:3},oldRarity=getWeaponRarity(base.id),wasOwned=owned.has(base.id),improves=wasOwned&&rarityOrder[rarity]>rarityOrder[oldRarity],ri=weaponRarityTiers[rarity];
+ chest.opened=true;chest.reward={weaponId:base.id,rarity};
+ if(!wasOwned){owned.add(base.id);weaponRarityById[base.id]=rarity;const dropped=withWeaponRarity(base);ammoByGun[base.id]=dropped.mag;reserveByGun[base.id]=gunReserve(dropped);equipWeapon(weaponSlot(base),base.id,true);announce(ri.name+' WEAPON FOUND',base.name+' · UNLOCKED & EQUIPPED');toast(ri.name+' '+base.name+' ACQUIRED')}
+ else if(improves){weaponRarityById[base.id]=rarity;const upgraded=withWeaponRarity(base);ammoByGun[base.id]=Math.min(Number.isFinite(ammoByGun[base.id])?ammoByGun[base.id]:upgraded.mag,upgraded.mag);reserveByGun[base.id]=Math.min(reserveByGun[base.id]||0,gunReserve(upgraded)+upgraded.mag);if(player&&gunId===base.id){player.ammo=Math.min(player.ammo,upgraded.mag);ammoByGun[base.id]=player.ammo}announce(ri.name+' WEAPON UPGRADE',base.name+' · '+weaponRarityTiers[oldRarity].name+' → '+ri.name);toast(base.name+' UPGRADED TO '+ri.name)}
+ else{const cashBonus=Math.max(150,Math.round((base.cost||0)*.25));cash+=cashBonus;announce('DUPLICATE WEAPON',base.name+' · +$'+cashBonus+' CASH');toast('DUPLICATE '+base.name+' · +$'+cashBonus)}
+ save();hud();return true
 }
 function drawBossChests(){
  for(const chest of bossChests){
@@ -168,7 +166,7 @@ function drawBossChests(){
   ctx.fillStyle=chest.opened?'#6d5e4d':'#ffe08a';ctx.fillRect(-3,-1,6,7);
   ctx.strokeStyle=chest.opened?'#33281e':'#ffcf57';ctx.lineWidth=2;ctx.strokeRect(-25,-10,50,31);
   if(!chest.opened){ctx.globalAlpha=.3;ctx.fillStyle='#ffcf57';ctx.beginPath();ctx.arc(0,0,34+pulse,0,Math.PI*2);ctx.fill();ctx.globalAlpha=1;ctx.strokeStyle='#ffd56a';ctx.lineWidth=2;ctx.beginPath();ctx.arc(0,0,31+pulse,0,Math.PI*2);ctx.stroke()}
-  if(near){ctx.globalAlpha=1;ctx.fillStyle='#101713';ctx.fillRect(-44,-43,88,22);ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=chest.opened?'#b8c0b7':'#ffe08a';ctx.fillText(chest.opened?'RELIC CLAIMED':'E  ·  CLAIM RELIC',0,-32)}
+  if(near){ctx.globalAlpha=1;ctx.fillStyle='#101713';ctx.fillRect(-44,-43,88,22);ctx.font='bold 12px system-ui';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=chest.opened?'#b8c0b7':'#ffe08a';ctx.fillText(chest.opened?'WEAPON CLAIMED':'E  ·  CLAIM WEAPON',0,-32)}
   ctx.restore()
  }
 }
@@ -556,7 +554,7 @@ return '<div class="itemart '+(isGun?'weapon-art':'gear-art')+'"><svg viewBox="0
 }
 function shopOpen(dead=false){fromShop=state==='menu'?'menu':'play';state='shop';tab='loadout';renderShop(dead)}
 function renderShop(dead=false){
-let tabs=[['loadout','LOADOUT'],['primary','PRIMARY'],['secondary','SECONDARY'],['armor','VESTS'],['gear','GEAR'],['relics','RELICS']],html='';
+let tabs=[['loadout','LOADOUT'],['primary','PRIMARY'],['secondary','SECONDARY'],['armor','VESTS'],['gear','GEAR'],['relics','RARITY']],html='';
 if(tab==='loadout'){
  const pg=primaryGunId?withWeaponRarity(guns.find(g=>g.id===primaryGunId)):null,sg=secondaryGunId?withWeaponRarity(guns.find(g=>g.id===secondaryGunId)):null,a=armor();
  const primaryCard=pg
@@ -579,12 +577,11 @@ if(tab==='secondary'){
 }
 
 if(tab==='relics'){
- const relicCards=Object.keys(weaponRarityTiers).map(r=>{const ri=weaponRarityTiers[r];return '<div class="item" style="border:1px solid '+ri.color+';box-shadow:inset 0 0 0 1px '+ri.color+'22"><div class="eyebrow" style="color:'+ri.color+'">'+ri.name+' RELICS</div><div style="font-size:32px;font-weight:1000;color:'+ri.color+'">'+(relicCounts[r]||0)+'</div></div>'}).join('');
  const upgradeCards=guns.filter(g=>owned.has(g.id)).map(g=>{
-  const rank=getWeaponRarity(g.id),ri=weaponRarityTiers[rank],recipe=weaponUpgradeRecipes[rank],next=recipe&&weaponRarityTiers[recipe.next],have=recipe?(relicCounts[recipe.relic]||0):0,ready=recipe&&have>=recipe.amount;
-  return '<div class="item relic-weapon-card" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+(recipe?rarityUpgradePreview(g,recipe.next)+'<div class="statsline">UPGRADE TO <b style="color:'+next.color+'">'+next.name+'</b> · COST '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><div class="statsline">YOU HAVE '+have+' / '+recipe.amount+' '+weaponRarityTiers[recipe.relic].name+' RELICS</div><button data-upgrade-weapon="'+g.id+'" '+(ready?'':'disabled')+'>UPGRADE TO '+next.name+'</button>':'<div class="statsline" style="color:'+ri.color+'">MAXIMUM RARITY REACHED</div>')+'</div>'
+  const rank=getWeaponRarity(g.id),ri=weaponRarityTiers[rank],recipe=weaponUpgradeRecipes[rank],next=recipe&&weaponRarityTiers[recipe.next],ready=recipe&&cash>=recipe.cash;
+  return '<div class="item relic-weapon-card" style="border:1px solid '+ri.color+'">'+itemArt(g.id,g.color)+'<h3>'+g.name+'</h3>'+weaponStats(g)+(recipe?rarityUpgradePreview(g,recipe.next)+'<div class="statsline">UPGRADE TO <b style="color:'+next.color+'">'+next.name+'</b> · COST <b>$'+recipe.cash+'</b></div><div class="statsline">AVAILABLE CASH · $'+Math.floor(cash)+'</div><button data-upgrade-weapon="'+g.id+'" '+(ready?'':'disabled')+'>UPGRADE TO '+next.name+'</button>':'<div class="statsline" style="color:'+ri.color+'">MAXIMUM RARITY REACHED</div>')+'</div>'
  }).join('');
- html='<div style="grid-column:1/-1"><div class="eyebrow">BOSS RELICS · WEAPON RARITY</div><p>Bosses drop relics from chests.</p><div class="grid">'+relicCards+'</div><h2 style="margin-top:18px">UPGRADE OWNED WEAPONS</h2><div class="grid">'+(upgradeCards||'<div class="item"><p>Buy a weapon first to upgrade its rarity.</p></div>')+'</div></div>';
+ html='<div style="grid-column:1/-1"><div class="eyebrow">BOSS WEAPON DROPS · RARITY</div><p>Every boss chest contains a random weapon. Drop weights are normalized from your values because they total 116: <b style="color:'+weaponRarityTiers.common.color+'">COMMON ~69%</b> · <b style="color:'+weaponRarityTiers.rare.color+'">RARE ~26%</b> · <b style="color:'+weaponRarityTiers.epic.color+'">EPIC ~4%</b> · <b style="color:'+weaponRarityTiers.legendary.color+'">LEGENDARY ~1%</b>. Dropped weapons unlock immediately, regardless of level. Duplicate drops improve the weapon if their rarity is higher; otherwise they grant cash.</p><h2 style="margin-top:18px">UPGRADE OWNED WEAPONS</h2><p>Manual rarity upgrades stay available and now cost cash because bosses drop weapons instead of relics.</p><div class="grid">'+(upgradeCards||'<div class="item"><p>Claim a boss weapon or buy a weapon first to upgrade its rarity.</p></div>')+'</div></div>';
 }
 
 if(tab==='gear')html='<div class="item">'+itemArt('turret','#7dff70')+'<h3>Auto-Turret'+(turretEquipped?' ✓':'')+'</h3><p>Deploy a stationary automated turret with a 260-unit range. Fires at nearby infected for 20 damage per shot at 3 shots per second. Line of sight required.</p><div class="statsline">DAMAGE <b>20</b> · FIRE RATE <b>3.0/s</b> · RANGE <b>260</b></div><div class="price">'+(turretOwned?'Owned':'$600')+'</div>'+(turretOwned?'<button data-turret-equip>'+(turretEquipped?'EQUIPPED · G TO DEPLOY':'EQUIP TURRET')+'</button>':'<button data-turret-buy '+(cash<600?'disabled':'')+'>BUY & EQUIP · $600</button>')+'<p style="font-size:11px">Press G during combat to deploy/redeploy it at your position.</p></div>';
@@ -595,7 +592,7 @@ document.querySelectorAll('[data-tab]').forEach(b=>b.onclick=()=>{tab=b.dataset.
 document.querySelectorAll('[data-buy]').forEach(b=>b.onclick=()=>{let g=guns.find(x=>x.id===b.dataset.buy);if(g&&cash>=g.cost&&level>=g.lv&&!owned.has(g.id)){cash-=g.cost;owned.add(g.id);ammoByGun[g.id]=g.mag;reserveByGun[g.id]=gunReserve(g);equipWeapon(weaponSlot(g),g.id,true);save();renderShop(dead);toast(g.name+' acquired and equipped')}});
 document.querySelectorAll('[data-equip]').forEach(b=>b.onclick=()=>{const g=guns.find(x=>x.id===b.dataset.equip);if(g&&equipWeapon(weaponSlot(g),g.id,true)){save();renderShop(dead)}});
 
-document.querySelectorAll('[data-upgrade-weapon]').forEach(b=>b.onclick=()=>{const id=b.dataset.upgradeWeapon;if(!owned.has(id))return;const rank=getWeaponRarity(id),recipe=weaponUpgradeRecipes[rank];if(!recipe)return;const have=relicCounts[recipe.relic]||0;if(have<recipe.amount){toast('NOT ENOUGH '+weaponRarityTiers[recipe.relic].name+' RELICS');return}relicCounts[recipe.relic]=have-recipe.amount;weaponRarityById[id]=recipe.next;const base=guns.find(g=>g.id===id),mod=withWeaponRarity(base);ammoByGun[id]=Math.min(Number.isFinite(ammoByGun[id])?ammoByGun[id]:mod.mag,mod.mag);reserveByGun[id]=Math.min(reserveByGun[id]||0,gunReserve(mod)+mod.mag);if(player&&gunId===id){player.ammo=Math.min(player.ammo,mod.mag);ammoByGun[id]=player.ammo}save();renderShop(dead);toast(base.name+' UPGRADED TO '+weaponRarityTiers[recipe.next].name)});
+document.querySelectorAll('[data-upgrade-weapon]').forEach(b=>b.onclick=()=>{const id=b.dataset.upgradeWeapon;if(!owned.has(id))return;const rank=getWeaponRarity(id),recipe=weaponUpgradeRecipes[rank];if(!recipe)return;if(cash<recipe.cash){toast('NOT ENOUGH CASH');return}cash-=recipe.cash;weaponRarityById[id]=recipe.next;const base=guns.find(g=>g.id===id),mod=withWeaponRarity(base);ammoByGun[id]=Math.min(Number.isFinite(ammoByGun[id])?ammoByGun[id]:mod.mag,mod.mag);reserveByGun[id]=Math.min(reserveByGun[id]||0,gunReserve(mod)+mod.mag);if(player&&gunId===id){player.ammo=Math.min(player.ammo,mod.mag);ammoByGun[id]=player.ammo}save();renderShop(dead);toast(base.name+' UPGRADED TO '+weaponRarityTiers[recipe.next].name)});
 
 document.querySelectorAll('[data-armor]').forEach(b=>b.onclick=()=>{let a=armors.find(x=>x.id===b.dataset.armor);if(a&&cash>=a.cost){cash-=a.cost;armorId=a.id;if(player){player.maxHp=maxHp();player.hp=Math.min(player.maxHp,player.hp+30)}save();renderShop(dead)}});document.querySelectorAll('[data-turret-buy]').forEach(b=>b.onclick=()=>{if(cash>=600&&!turretOwned){cash-=600;turretOwned=true;turretEquipped=true;if(player)turret={x:player.x,y:player.y};turretFireT=0;save();renderShop(dead);toast('AUTO-TURRET ACQUIRED')}});document.querySelectorAll('[data-turret-equip]').forEach(b=>b.onclick=()=>{turretEquipped=!turretEquipped;if(!turretEquipped)turret=null;else if(player)turret={x:player.x,y:player.y};turretFireT=0;save();renderShop(dead)});
 
