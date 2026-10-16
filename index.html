@@ -34,7 +34,7 @@
 .relic-weapon-card .stat-copy small{font-size:8px;letter-spacing:.25px;color:#83a9c1;font-weight:800;white-space:nowrap}
 .relic-weapon-card .stat-copy b{font-size:11px;color:#edf8ff;font-weight:900;white-space:nowrap}
 .rarity-guide{margin:16px 0 18px;padding:12px;border:1px solid #405558;border-radius:9px;background:#101b1e}
-.rarity-tier-guide{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin:9px 0}
+.rarity-tier-guide{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:8px;margin:9px 0}
 .rarity-tier{display:flex;min-width:0;flex-direction:column;align-items:center;justify-content:center;gap:3px;padding:9px 3px;border:1px solid;border-radius:7px;background:#172326}
 .rarity-tier b{font-size:10px;letter-spacing:.5px}
 .rarity-tier strong{font-size:19px;color:#edf4ef}
@@ -73,6 +73,7 @@ const world={w:2200,h:1650},guns=[{id:'pistol',name:'M9',desc:'Reliable, accurat
 
 const weaponRarityTiers={
 common:{name:'COMMON',color:'#a8adb4',multiplier:1},
+uncommon:{name:'UNCOMMON',color:'#45df74',multiplier:1.10},
 rare:{name:'RARE',color:'#4da3ff',multiplier:1.20},
 epic:{name:'EPIC',color:'#c084fc',multiplier:1.45},
 legendary:{name:'LEGENDARY',color:'#ffca45',multiplier:1.75}
@@ -94,7 +95,7 @@ function withWeaponRarity(base,forceRarity){
  }
  return g
 }
-function rollWeaponDropRarity(){const r=Math.random()*116;return r<1?'legendary':r<6?'epic':r<36?'rare':'common'}
+function rollWeaponDropRarity(){const r=Math.random()*116;return r<1?'legendary':r<6?'epic':r<36?'rare':'uncommon'}
 
 let soundCtx=null,noiseBuffer=null,lastEmptyClickAt=0;
 function initAudio(){try{const AC=window.AudioContext||window.webkitAudioContext;if(!AC)return;if(!soundCtx){soundCtx=new AC();noiseBuffer=soundCtx.createBuffer(1,soundCtx.sampleRate*.35,soundCtx.sampleRate);const data=noiseBuffer.getChannelData(0);for(let i=0;i<data.length;i++)data[i]=Math.random()*2-1}if(soundCtx.state==='suspended')soundCtx.resume()}catch(e){}}
@@ -169,10 +170,10 @@ function lootRollMarkup(item,rolling,result=null){
  const headline=rolling?'ROLLING BOSS LOOT':result?.headline||'WEAPON REVEALED';
  const status=rolling?'SCANNING WEAPON + RARITY…':result?.detail||'REWARD READY';
  const outcome=rolling?'The roll will stop on your actual reward.':result?.message||'';
- return '<div class="eyebrow">BOSS CACHE // WEAPON DROP</div><h1 style="font-size:clamp(27px,5vw,43px)">'+headline+'</h1><p>'+outcome+'</p><div class="loot-roll-shell '+(rolling?'rolling':'revealed')+'" style="--loot-color:'+tier.color+'" id="lootRollShell"><div class="loot-roll-card" id="lootRollCard"><div class="loot-roll-art">'+itemArt(g.id,g.color)+'</div><div class="loot-roll-copy"><div class="loot-roll-tier">'+tier.name+'</div><div class="loot-roll-weapon">'+g.name+'</div><small>'+(owned.has(g.id)?'OWNED WEAPON · RARITY CHECK':'NEW WEAPON · BUY TO USE')+'</small></div></div></div><div class="loot-roll-status" style="--loot-color:'+tier.color+'" id="lootRollStatus">'+status+'</div>'+(rolling?'<p style="text-align:center;font-size:10px">COMMON · RARE · EPIC · LEGENDARY</p>':'<div class="actions" style="justify-content:center"><button class="primary" id="lootRollCollect">CONTINUE</button></div>')
+ return '<div class="eyebrow">BOSS CACHE // WEAPON DROP</div><h1 style="font-size:clamp(27px,5vw,43px)">'+headline+'</h1><p>'+outcome+'</p><div class="loot-roll-shell '+(rolling?'rolling':'revealed')+'" style="--loot-color:'+tier.color+'" id="lootRollShell"><div class="loot-roll-card" id="lootRollCard"><div class="loot-roll-art">'+itemArt(g.id,g.color)+'</div><div class="loot-roll-copy"><div class="loot-roll-tier">'+tier.name+'</div><div class="loot-roll-weapon">'+g.name+'</div><small>'+(owned.has(g.id)?'OWNED WEAPON · RARITY CHECK':'NEW WEAPON · BUY TO USE')+'</small></div></div></div><div class="loot-roll-status" style="--loot-color:'+tier.color+'" id="lootRollStatus">'+status+'</div>'+(rolling?'<p style="text-align:center;font-size:10px">UNCOMMON · RARE · EPIC · LEGENDARY</p>':'<div class="actions" style="justify-content:center"><button class="primary" id="lootRollCollect">CONTINUE</button></div>')
 }
 function applyBossChestReward(chest,base,rarity){
- const rarityOrder={common:0,rare:1,epic:2,legendary:3},oldRarity=getWeaponRarity(base.id),wasOwned=owned.has(base.id),hadStoredRarity=Object.prototype.hasOwnProperty.call(weaponRarityById,base.id),improves=rarityOrder[rarity]>rarityOrder[oldRarity],ri=weaponRarityTiers[rarity];
+ const rarityOrder={common:0,uncommon:1,rare:2,epic:3,legendary:4},oldRarity=getWeaponRarity(base.id),wasOwned=owned.has(base.id),hadStoredRarity=Object.prototype.hasOwnProperty.call(weaponRarityById,base.id),improves=rarityOrder[rarity]>rarityOrder[oldRarity],ri=weaponRarityTiers[rarity];
  chest.opened=true;chest.rolling=false;chest.reward={weaponId:base.id,rarity};
  let result;
  if(!wasOwned){
