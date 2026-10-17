@@ -101,7 +101,7 @@ function withWeaponRarity(base,forceRarity){
  }
  return g
 }
-const chestRarityBaseWeights={normal:{uncommon:80,rare:30,epic:5,legendary:1},advanced:{uncommon:45,rare:35,epic:15,legendary:5}};
+const chestRarityBaseWeights={normal:{uncommon:60,rare:50,epic:20,legendary:21.1627906976744},advanced:{uncommon:35,rare:60,epic:35,legendary:35}};
 const chestRarityOrder=['uncommon','rare','epic','legendary'];
 function chestRarityWeights(base,advanced=false){
  const source=chestRarityBaseWeights[advanced?'advanced':'normal'],cost=Math.max(0,Number(base?.cost)||0),scale=cost/1500;
