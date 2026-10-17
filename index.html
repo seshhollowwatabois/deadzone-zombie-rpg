@@ -393,8 +393,7 @@ function fireTestWeapon(angle,g){
  const z=t.z,tx=z.x,ty=z.y;
  if(g.id==='singularity'){
    if(!z.gravityMarked){const marksRequired=g.marksRequired||8;z.gravityCharge=Math.min(2.1,(z.gravityCharge||0)+2.1/marksRequired);if(z.gravityCharge>=2.1){z.gravityMarked=true;z.gravityMarkTimer=5;z.gravityHoleRadius=g.implosionRadius||165;burst(tx,ty,'#b77bff',12);}}
-   const chargedDamage=damage()*(1+(z.gravityCharge||0)*.28);
-   hitZombie(z,chargedDamage,t.headshot,false,t.hitX,t.hitY);
+   hitZombie(z,damage(),t.headshot,false,t.hitX,t.hitY);
   }else if(g.id==='oblivion'){
   z.oblivionHeat=Math.min(g.maxHeat||2.2,(z.oblivionHeat||0)+(g.heatGain||.24));const heat=z.oblivionHeat,wasDead=z.dead;
   hitZombie(z,damage()*(1+heat*.68),t.headshot,false,t.hitX,t.hitY);
