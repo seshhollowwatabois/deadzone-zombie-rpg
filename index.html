@@ -366,7 +366,7 @@ function laserRay(angle,g,shotHits=null){
  for(let d=4;d<range;d+=4){const x=ox+dx*d,y=oy+dy*d;if(x<0||y<0||x>world.w||y>world.h||obstacles.some(o=>x>o.x-o.w/2&&x<o.x+o.w/2&&y>o.y-o.h/2&&y<o.y+o.h/2)){end=d;break}}
  const targets=[];for(const z of zs){if(z.dead)continue;const zx=z.x-ox,zy=z.y-oy,proj=zx*dx+zy*dy;if(proj<0||proj>end)continue;const perp=Math.abs(zx*dy-zy*dx);if(perp<=z.r+3){const h=zombieHead(z),headProj=(h.x-ox)*dx+(h.y-oy)*dy,headPerp=Math.abs((h.x-ox)*dy-(h.y-oy)*dx),headshot=headProj>=0&&headProj<=end&&headPerp<=z.r*.39,impactProj=headshot?headProj:proj;targets.push({z,proj,headshot,hitX:ox+dx*impactProj,hitY:oy+dy*impactProj})}}
  targets.sort((a,b)=>a.proj-b.proj);const first=targets[0]||null,life=.12;
- laserBeams.push({x1:ox,y1:oy,x2:first?first.z.x:ox+dx*end,y2:first?first.z.y:oy+dy*end,life,max:life,color:g.color,width:3.5,glow:12,style:'nukor'});
+ laserBeams.push({x1:ox,y1:oy,x2:first?first.hitX:ox+dx*end,y2:first?first.hitY:oy+dy*end,life,max:life,color:g.color,width:3.5,glow:12,style:'nukor'});
  if(!first)return;
  hitZombie(first.z,damage(),first.headshot,false,first.hitX,first.hitY);
  const chainRadius=g.chainRadius||170,chainCount=g.chainCount||4,chains=zs.filter(z=>!z.dead&&z!==first.z&&Math.hypot(z.x-first.z.x,z.y-first.z.y)<=chainRadius).sort((a,b)=>Math.hypot(a.x-first.z.x,a.y-first.z.y)-Math.hypot(b.x-first.z.x,b.y-first.z.y)).slice(0,chainCount);
