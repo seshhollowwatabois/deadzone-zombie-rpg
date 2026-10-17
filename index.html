@@ -170,7 +170,7 @@ const waveEvents=[
 ];
 function startWave(){
  wave++;spawned=0;pendingBoss=bossWaves[wave]||null;bossSpawnT=pendingBoss?1.4:0;
- activeWaveEvent=wave>=2&&Math.random()<.32?waveEvents[Math.floor(Math.random()*waveEvents.length)]:null;
+ const eventPool=wave>=5?waveEvents:waveEvents.filter(e=>e.id!=='spitters');activeWaveEvent=wave>=2&&Math.random()<.32?eventPool[Math.floor(Math.random()*eventPool.length)]:null;
  total=Math.max(1,5+wave*3-(pendingBoss?1:0));if(activeWaveEvent?.id==='horde')total=Math.ceil(total*1.45);
  spawnT=pendingBoss?1.75:.5;breakT=0;zs=[];spawnAmmoBox();
  supplyDropPendingT=wave>=3&&(wave%3===0||Math.random()<.16)?rand(5,10):0;
