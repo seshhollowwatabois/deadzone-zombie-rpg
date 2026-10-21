@@ -372,9 +372,12 @@ function updateElementalOrbs(dt){
   z.waterOrbCooldown=Math.max(0,(z.waterOrbCooldown||0)-dt);
   if((z.waterSlowT||0)>0)z.waterSlowT=Math.max(0,z.waterSlowT-dt);
   const inOrb=!!orb&&Math.hypot(z.x-player.x,z.y-player.y)<=elementalOrbEffectRadius();
+  const inAirAura=airOrbEquipped&&inOrb;
+  if(inAirAura&&!z.airOrbSlowed){texts.push({x:z.x,y:z.y-22,t:'SLOWED',life:.7,max:.7,color:'#75eaff'});burst(z.x,z.y,'#67dfff',4)}
+  z.airOrbSlowed=inAirAura;
   if(orbType==='fire'&&inOrb){
    z.fireOrbTick=(z.fireOrbTick||0)-dt;
-   if(z.fireOrbTick<=0){z.fireOrbTick=.5;const before=z.hp;hitZombie(z,5+fireOrbStacks*2,false,true,z.x,z.y,true);if(z.hp<before&&!z.dead)burst(z.x,z.y,'#ff7536',3)}
+   if(z.fireOrbTick<=0){z.fireOrbTick=.5;const before=z.hp,burnDamage=5+fireOrbStacks*2;hitZombie(z,burnDamage,false,true,z.x,z.y,true);if(z.hp<before){texts.push({x:z.x,y:z.y-16,t:'-'+Math.min(burnDamage,Math.ceil(before)),life:.55,max:.55,color:'#ff7536'});if(!z.dead)burst(z.x,z.y,'#ff7536',3)}}
   }else z.fireOrbTick=0;
   if(z.dead)continue;
   const inWater=orbType==='water'&&inOrb;
