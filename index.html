@@ -1136,6 +1136,7 @@ document.querySelectorAll('[data-orb-action]').forEach(b=>b.onclick=()=>{
   }
   if(!fireOrbEquipped){fireOrbStacks=0;fireOrbStackT=0}
   if(!waterOrbEquipped)waterOrbHealT=0;
+  for(const z of zs){z.waterOrbInside=false;z.waterOrbPending=false;z.fireOrbTick=0}
   save();renderShop(dead);toast(d.name+(isEquipped?' UNEQUIPPED':' EQUIPPED'));return;
  }
  if(cash<d.cost)return;
@@ -1144,6 +1145,7 @@ document.querySelectorAll('[data-orb-action]').forEach(b=>b.onclick=()=>{
  if(id==='air')airOrbOwned=true;
  else if(id==='fire'){fireOrbOwned=true;fireOrbStacks=0;fireOrbStackT=0}
  else {waterOrbOwned=true;waterOrbHealT=0}
+ for(const z of zs){z.waterOrbInside=false;z.waterOrbPending=false;z.fireOrbTick=0}
  save();renderShop(dead);toast(d.name+' ACQUIRED & EQUIPPED');
 });
 document.querySelectorAll('[data-armor]').forEach(b=>b.onclick=()=>{let a=armors.find(x=>x.id===b.dataset.armor);if(a&&cash>=a.cost){cash-=a.cost;armorId=a.id;if(player){player.maxHp=maxHp();player.hp=Math.min(player.maxHp,player.hp+30)}save();renderShop(dead)}});document.querySelectorAll('[data-turret-buy]').forEach(b=>b.onclick=()=>{if(cash>=600&&!turretOwned){cash-=600;turretOwned=true;turretEquipped=true;if(player)turret={x:player.x,y:player.y};turretFireT=0;save();renderShop(dead);toast('AUTO-TURRET ACQUIRED')}});document.querySelectorAll('[data-turret-equip]').forEach(b=>b.onclick=()=>{turretEquipped=!turretEquipped;if(!turretEquipped)turret=null;else if(player)turret={x:player.x,y:player.y};turretFireT=0;save();renderShop(dead)});
