@@ -882,7 +882,7 @@ return '<div class="itemart '+(isGun?'weapon-art':'gear-art')+'"><svg viewBox="0
 }
 function shopOpen(dead=false,merchantVisit=false){fromShop=state==='menu'?'menu':'play';merchantShopOpen=!!merchantVisit;state='shop';tab='loadout';chanceChestView=null;renderShop(dead)}
 function renderShop(dead=false){
-let tabs=[['loadout','LOADOUT'],['enemies','ENEMIES'],['primary','PRIMARY'],['secondary','SECONDARY'],['test','SPECIAL'],['armor','VESTS'],['gear','GEAR'],['relics','RARITY'],['chances','CHANCES']],html='';
+let tabs=[['loadout','LOADOUT'],...(merchantShopOpen?[['chests','BOSS CHESTS']]:[]),['enemies','ENEMIES'],['primary','PRIMARY'],['secondary','SECONDARY'],['test','SPECIAL'],['armor','VESTS'],['gear','GEAR'],['relics','RARITY'],['chances','CHANCES']],html='';
 if(tab==='loadout'){
  const pg=primaryGunId?withWeaponRarity(guns.find(g=>g.id===primaryGunId)):null,sg=secondaryGunId?withWeaponRarity(guns.find(g=>g.id===secondaryGunId)):null,a=armor();
  const primaryCard=pg
