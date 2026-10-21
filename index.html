@@ -350,7 +350,7 @@ function updateElementalOrbs(dt){
   const d=Math.hypot(z.x-player.x,z.y-player.y);
   if(fireOrbEquipped&&d<=125){
    z.fireOrbTick=(z.fireOrbTick||0)-dt;
-   if(z.fireOrbTick<=0){z.fireOrbTick=.5;const before=z.hp;hitZombie(z,2,false,true,z.x,z.y,true);if(z.hp<before&&!z.dead)burst(z.x,z.y,'#ff7536',3)}
+   if(z.fireOrbTick<=0){z.fireOrbTick=.5;const before=z.hp;hitZombie(z,5+fireOrbStacks*5,false,true,z.x,z.y,true);if(z.hp<before&&!z.dead)burst(z.x,z.y,'#ff7536',3)}
   }else z.fireOrbTick=0;
   if(z.dead)continue;
   const inWater=waterOrbEquipped&&d<=145;
@@ -1083,7 +1083,7 @@ if(tab==='chances'){
  html='<div class="item">'+itemArt('turret','#7dff70')+'<h3>Auto-Turret'+(turretEquipped?' ✓':'')+'</h3><p>Deploy a stationary automated turret with a 260-unit range. Fires at nearby infected for 20 damage per shot at 3 shots per second. Line of sight required.</p><div class="statsline">DAMAGE <b>20</b> · FIRE RATE <b>3.0/s</b> · RANGE <b>260</b></div><div class="price">'+(turretOwned?'Owned':'$600')+'</div>'+(turretOwned?'<button data-turret-equip>'+(turretEquipped?'EQUIPPED · G TO DEPLOY':'EQUIP TURRET')+'</button>':'<button data-turret-buy '+(cash<600?'disabled':'')+'>BUY & EQUIP · $600</button>')+'<p style="font-size:11px">Press G during combat to deploy/redeploy it at your position.</p></div>';
  const orbItems=[
   {id:'air',name:'Air Orb',color:'#69dfff',cost:1800,desc:'Floats around you. Increases movement speed by 25% and slows infected within 160 units by 25%.',owned:airOrbOwned,equipped:airOrbEquipped},
-  {id:'fire',name:'Fire Orb',color:'#ff7438',cost:2400,desc:'Deals 2 burn damage every 0.5 seconds to infected within 125 units. Kills add +1% weapon damage per stack (up to +10%); stacks last 4 seconds after your last kill.',owned:fireOrbOwned,equipped:fireOrbEquipped},
+  {id:'fire',name:'Fire Orb',color:'#ff7438',cost:2400,desc:'Deals 5 burn damage every 0.5 seconds to infected within 125 units. Each Fire Orb kill adds a stack that increases burn damage by another 5 (up to +50 bonus burn damage at 10 stacks) and weapon damage by 1% (up to +10%). Stacks last 4 seconds after your last kill.',owned:fireOrbOwned,equipped:fireOrbEquipped},
   {id:'water',name:'Water Orb',color:'#65aaff',cost:2000,desc:'When you are missing at least 50 HP, automatically restores 50 HP every 12 seconds and spends 50 stamina. Enemies entering its 145-unit aura take 8 damage, get knocked back, and are slowed for 1.2 seconds.',owned:waterOrbOwned,equipped:waterOrbEquipped}
  ];
  html+=orbItems.map(o=>'<div class="item">'+elementalOrbArt(o.id,o.color)+'<h3>'+o.name+(o.equipped?' ✓':'')+'</h3><p>'+o.desc+'</p><div class="statsline">'+(o.equipped?'EQUIPPED':o.owned?'OWNED':'ELEMENTAL GEAR')+'</div><div class="price">'+(o.owned?(o.equipped?'Equipped':'Owned'):'$'+o.cost)+'</div><button data-orb-action="'+o.id+'" '+(!o.owned&&cash<o.cost?'disabled':'')+'>'+(o.owned?(o.equipped?'UNEQUIP ORB':'EQUIP ORB'):'BUY & EQUIP · $'+o.cost)+'</button></div>').join('');
