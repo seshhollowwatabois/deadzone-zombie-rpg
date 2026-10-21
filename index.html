@@ -308,11 +308,12 @@ function spawnZombie(){
  const bruteChance=Math.min(.02+wave*.012+(activeWaveEvent?.id==='heavy'?.12:0),.4),rareBrute=Math.random()<bruteChance,roll=Math.random();let type='walker';
  if(rareBrute)type='brute';
  else if(wave>=5&&roll<.075)type='exploder';
- else if(wave>=6&&roll<(wave>=15?.26:.18)){
-  const options=['charger'];if(wave>=8)options.push('armored','leaper');if(wave>=10)options.push('screecher','burrower');if(wave>=12)options.push('spore','reanimator');if(wave>=14)options.push('smoker');if(wave>=16)options.push('elemental');
+ else if(wave>=6&&roll<(wave>=15?.14:.09)){
+  const options=['charger'];if(wave>=8)options.push('armored');if(wave>=10)options.push('screecher');if(wave>=12)options.push('spore');if(wave>=14)options.push('smoker');if(wave>=16)options.push('elemental');
   type=options[Math.floor(Math.random()*options.length)];
  }else if(wave>2&&roll<.18)type='runner';
  else if(wave>4&&(activeWaveEvent?.id==='spitters'?roll<.48:roll>=.29&&roll<.4))type='spitter';
+ if(type==='walker'&&wave>=8){const newTypes=['leaper'];if(wave>=10)newTypes.push('burrower');if(wave>=12)newTypes.push('reanimator');if(Math.random()<.14)type=newTypes[Math.floor(Math.random()*newTypes.length)]}
  const stats={walker:[100,58,10,'#687b5c',13],runner:[50,93,7,'#a2a75b',10],brute:[1250,34,19,'#665148',22],spitter:[75,43,8,'#6e8b70',12],charger:[150,154,16,'#c87543',12],armored:[650,43,13,'#71818a',15],screecher:[90,51,8,'#b86fba',13],spore:[175,48,11,'#8bc451',14],smoker:[95,40,9,'#77858a',14],elemental:[225,43,12,'#b64b25',14],exploder:[400,82,11,'#d65b2c',13],leaper:[115,68,15,'#b88b3e',12],burrower:[190,63,13,'#8b704a',14],reanimator:[260,38,8,'#548b5b',15]}[type];
  let maxHp=stats[0];if(activeWaveEvent?.id==='horde')maxHp=Math.round(maxHp*.8);
  zs.push({x,y,r:stats[4],hp:maxHp,max:maxHp,speed:stats[1],dmg:stats[2],color:stats[3],type,walk:rand(0,10),flash:0,attack:rand(.2,1),shoot:rand(1,2),dead:false,stuck:0,skillT:rand(4.5,6),chargeCd:rand(3,5),chargeWindup:0,chargeT:0,screams:0,leapWindup:0,leapT:0,leapCd:rand(3,5),leapVx:0,leapVy:0,leapTargetX:x,leapTargetY:y,burrowWindup:0,burrowT:0,burrowCd:rand(5,7),burrowed:false,burrowTargetX:x,burrowTargetY:y,reanimateCd:rand(3,4)})
