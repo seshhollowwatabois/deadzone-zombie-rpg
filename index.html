@@ -354,7 +354,9 @@ function updateElementalOrbs(dt){
   }else z.fireOrbTick=0;
   if(z.dead)continue;
   const inWater=waterOrbEquipped&&d<=145;
-  if(inWater&&!z.waterOrbInside&&(z.waterOrbCooldown||0)<=0){
+  if(inWater&&!z.waterOrbInside)z.waterOrbPending=true;
+  if(!inWater)z.waterOrbPending=false;
+  if(inWater&&z.waterOrbPending&&(z.waterOrbCooldown||0)<=0){
    const before=z.hp;
    hitZombie(z,8,false,true,z.x,z.y,true);
    if(z.hp<before&&!z.dead){
@@ -369,6 +371,7 @@ function updateElementalOrbs(dt){
     texts.push({x:z.x,y:z.y-14,t:'SPLASH',life:.5,max:.5,color:'#8deaff'});
    }else if(!z.dead)burst(z.x,z.y,'#67dfff',5);
    z.waterOrbCooldown=2.2;
+   z.waterOrbPending=false;
   }
   z.waterOrbInside=!!inWater;
  }
