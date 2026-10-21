@@ -366,7 +366,7 @@ function updateElementalOrbs(dt){
   if(z.dead)continue;
   z.waterOrbCooldown=Math.max(0,(z.waterOrbCooldown||0)-dt);
   if((z.waterSlowT||0)>0)z.waterSlowT=Math.max(0,z.waterSlowT-dt);
-  const inOrb=!!orb&&Math.hypot(z.x-orb.x,z.y-orb.y)<=ELEMENTAL_ORB_RADIUS;
+  const inOrb=!!orb&&Math.hypot(z.x-player.x,z.y-player.y)<=ELEMENTAL_ORB_RADIUS;
   if(orbType==='fire'&&inOrb){
    z.fireOrbTick=(z.fireOrbTick||0)-dt;
    if(z.fireOrbTick<=0){z.fireOrbTick=.5;const before=z.hp;hitZombie(z,5+fireOrbStacks*2,false,true,z.x,z.y,true);if(z.hp<before&&!z.dead)burst(z.x,z.y,'#ff7536',3)}
@@ -379,7 +379,7 @@ function updateElementalOrbs(dt){
    const before=z.hp;
    hitZombie(z,8,false,true,z.x,z.y,true);
    if(z.hp<before&&!z.dead){
-    let dx=z.x-orb.x,dy=z.y-orb.y,dist=Math.hypot(dx,dy)||1;
+    let dx=z.x-player.x,dy=z.y-player.y,dist=Math.hypot(dx,dy)||1;
     if(dist<1){dx=1;dy=0;dist=1}
     const nx=z.x+dx/dist*48,ny=z.y+dy/dist*48;
     if(!blocked(nx,ny,z.r)){z.x=nx;z.y=ny}
