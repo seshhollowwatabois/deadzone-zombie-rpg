@@ -335,7 +335,7 @@ const ELEMENTAL_ORB_RADIUS=75;
 const ELEMENTAL_ORB_ORBIT_DISTANCE=ELEMENTAL_ORB_RADIUS;
 const ELEMENTAL_ORB_ORBIT_SPEED=3.8;
 function elementalOrbStacks(){return airOrbEquipped?airOrbStacks:fireOrbEquipped?fireOrbStacks:0}
-function elementalOrbEffectRadius(){return ELEMENTAL_ORB_RADIUS+elementalOrbStacks()}
+function elementalOrbEffectRadius(){return ELEMENTAL_ORB_RADIUS+elementalOrbStacks()*2}
 function activeElementalOrbType(){
  if(airOrbEquipped)return 'air';
  if(fireOrbEquipped)return 'fire';
