@@ -547,7 +547,6 @@ function fireTestWeapon(angle,g){
   const hit=[z],chainDamage=damage(),chainMax=g.chainCount||4,chainRadius=g.chainRadius||180;
   (async()=>{let source=z;for(let i=0;i<chainMax;i++){
    await new Promise(resolve=>setTimeout(resolve,200));
-   if(z.dead)return;
    const next=zs.filter(q=>!q.dead&&!hit.includes(q)&&Math.hypot(q.x-source.x,q.y-source.y)<chainRadius).sort((a,b)=>Math.hypot(a.x-source.x,a.y-source.y)-Math.hypot(b.x-source.x,b.y-source.y))[0];
    if(!next)break;testBeam(source.x,source.y,next.x,next.y,g,2.5,8,.16,'arcstorm-chain');const chainHitDamage=chainDamage,chainDealt=chainHitDamage*(next.boss==='juggernaut'?.68:1)*(combatBoostT>0?1.25:1);hitZombie(next,chainHitDamage,false,true,next.x,next.y,true);texts.push({x:next.x,y:next.y-8,t:Math.round(chainDealt),life:.65,max:.65,color:'#ffe15a'});next.arcSlowT=Math.max(next.arcSlowT||0,1.15);burst(next.x,next.y,'#fff1a1',3);hit.push(next);source=next;
   }})();
