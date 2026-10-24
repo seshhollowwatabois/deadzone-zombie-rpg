@@ -297,7 +297,7 @@ function startWave(){
  $('#wave').textContent=wave;save()
 }
 function announce(a,b){let n=$('#announce');n.innerHTML=a+'<small>'+b+'</small>';n.classList.add('show');annT=2.1}function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');toastT=2}
-function spawnMerchant(x,y){const offsets=[[68,0],[-68,0],[0,68],[0,-68],[48,48],[-48,48],[48,-48],[-48,-48]];let spot=null;for(const [ox,oy] of offsets){const mx=clamp(x+ox,28,world.w-28),my=clamp(y+oy,28,world.h-28);if(!blocked(mx,my,18)){spot={x:mx,y:my};break}}if(!spot)spot={x:clamp(x+68,28,world.w-28),y:clamp(y+36,28,world.h-28)};merchant={x:spot.x,y:spot.y,life:20,max:20};toast('MERCHANT ARRIVED · PRESS E TO TRADE')}
+function spawnMerchant(x,y){merchant={x:world.w/2,y:world.h/2,life:20,max:20};toast('MERCHANT ARRIVED · PRESS E TO TRADE')}
 function xpGain(n){xp+=n;while(xp>=xpNext){xp-=xpNext;level++;xpNext=Math.round(xpNext*1.22);announce('LEVEL UP','LEVEL '+level)}save()}
 function burst(x,y,color,n=8){for(let i=0;i<n;i++){let a=rand(0,Math.PI*2),s=rand(30,230),life=rand(.15,.65);particles.push({x,y,vx:Math.cos(a)*s,vy:Math.sin(a)*s,life,max:life,size:rand(1,4),color})}}
 function explodeExploder(z){const radius=125;blasts.push({x:z.x,y:z.y,radius,life:.48,max:.48});burst(z.x,z.y,'#ff4b20',34);burst(z.x,z.y,'#ffb33b',25);burst(z.x,z.y,'#fff0a0',12);shake=Math.max(shake,13);if(Math.hypot(player.x-z.x,player.y-z.y)<=radius){player.hp-=50;player.inv=Math.max(player.inv,.45);player.flash=.22;burst(player.x,player.y,'#ff4b20',15);texts.push({x:player.x,y:player.y-20,t:'-50 BLAST',life:.75,max:.75,color:'#ffad58'});toast('EXPLOSIVE ZOMBIE DETONATED!');if(player.hp<=0)handlePlayerDeath()}}
