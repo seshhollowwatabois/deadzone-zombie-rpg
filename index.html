@@ -461,6 +461,7 @@ function drawCorpses(){
 }
 function drawBossChests(){
  for(const chest of bossChests){
+  if(chest.opened)continue;
   const near=Math.hypot(player.x-chest.x,player.y-chest.y)<110;
   ctx.save();ctx.translate(chest.x,chest.y);
   const pulse=chest.opened?0:Math.sin(performance.now()/150)*2+3;
