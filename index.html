@@ -545,7 +545,7 @@ function fireTestWeapon(angle,g){
    hitZombie(z,damage(),false,false,t.hitX,t.hitY);
   }else if(g.id==='oblivion'){
   z.oblivionStacks=(Number(z.oblivionStacks)||0)+1;if(!z.oblivionMarked){const marksRequired=g.marksRequired||8;z.oblivionCharge=Math.min(2.1,(z.oblivionCharge||0)+2.1/marksRequired);if(z.oblivionCharge>=2.1){z.oblivionMarked=true;z.oblivionMarkTimer=5;burst(tx,ty,g.color,12);}}else z.oblivionMarkTimer=5;if(z.oblivionMarked){z.oblivionExplosionRadius=g.explosionRadius||150;z.oblivionExplosionDamage=g.explosionDamage||200;}
-  hitZombie(z,damage(),t.headshot,false,t.hitX,t.hitY);
+  hitZombie(z,damage(),false,false,t.hitX,t.hitY);
  }else if(g.id==='arcstorm'){
   hitZombie(z,damage(),t.headshot,false,t.hitX,t.hitY);z.arcSlowT=Math.max(z.arcSlowT||0,1.15);
   const hit=[z],chainDamage=damage(),chainMax=g.chainCount||4,chainRadius=g.chainRadius||180;
