@@ -182,7 +182,7 @@ function withWeaponRarity(base,forceRarity){
   if(base.id==='oblivion'){g.explosionRadius=45*mult;g.explosionDamage=g.d*12;}
   if(base.id==='arcstorm'){g.chainCount=(base.chainCount||4)+b;g.chainRadius=(base.chainRadius||180)*mult;}
   if(base.id==='blight'){g.infectionRadius=128*mult;g.infectionHitsRequired=({common:8,uncommon:7,rare:6,epic:4,legendary:2})[rarity]||8;g.blightStackDamageIncrease=1+(rarityChainBonus[rarity]||0);}
-  if(base.id==='absolutezero'){g.blastRadius=90*mult;g.blizzardRadius=150*mult;g.blizzardDamage=10*mult;g.blizzardDuration=5;g.speed=base.speed*mult;}
+  if(base.id==='absolutezero'){g.blastRadius=90*mult;g.blizzardRadius=150*mult;g.blizzardDamage=10*mult;g.blizzardDuration=5*mult;g.speed=base.speed*mult;}
  }
  return g
 }
